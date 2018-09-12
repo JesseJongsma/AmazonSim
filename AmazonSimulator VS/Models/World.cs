@@ -8,7 +8,6 @@ namespace Models {
     {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
-        
         public World() {
             Model3D r = CreateRobot(0,0,0);
             r.Move(4.6, 0, 13);
