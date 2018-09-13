@@ -8,11 +8,14 @@ namespace Models {
     {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
-        private int c = 0;
+        private double c = 0;
         
         public World() {
             Model3D r = CreateRobot(0,0,0);
             r.Move(4.6, 0, 13);
+
+            Model3D r2 = CreateRobot(0, 0, 0);
+            r.Move(4.6, 0, 16);
         }
 
         private Model3D CreateRobot(double x, double y, double z) {
@@ -46,14 +49,14 @@ namespace Models {
         public bool Update(int tick)
         {
             for(int i = 0; i < worldObjects.Count; i++) {
-                c++;
-                if (c > 100)
+                c = c + 0.1;
+                if (c > 10.0)
                 {
-                    c = 0;
+                    c = 0.0;
                 }
-                Console.WriteLine(c);
                 Model3D u = worldObjects[i];
-                u.Move(c, 0, c);
+                Console.WriteLine(u.x.ToString());
+                u.Move(c, 0, 0);
                 UpdateModel3DCommand update = new UpdateModel3DCommand(u);
                 SendCommandToObservers(update);
                 update.ToJson();
