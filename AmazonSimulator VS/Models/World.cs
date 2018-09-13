@@ -13,7 +13,8 @@ namespace Models {
         public World() {
             Model3D r = CreateRobot(0,0,0);
             r.Move(4.6, 0, 13);
-            Model3D t = CreateTruck(0, 0, 0);
+
+            Model3D t = CreateTruck(0,0,0);
             t.Move(-35, 0.05, 15);
         }
 
@@ -84,9 +85,6 @@ namespace Models {
                 }
 
                 model.Move(c, 0, c);
-
-                UpdateModel3DCommand update = new UpdateModel3DCommand(model);
-                SendCommandToObservers(update);
             }
         }
 
@@ -101,9 +99,6 @@ namespace Models {
                 }
 
                 model.Move(c, 0, c);
-
-                UpdateModel3DCommand update = new UpdateModel3DCommand(model);
-                SendCommandToObservers(update);
             }
         }
     }

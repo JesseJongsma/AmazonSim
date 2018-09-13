@@ -17,7 +17,7 @@
         window.onload = function () {
             var camera, scene, renderer;
             var cameraControls;
-
+            var truckObject;
             var worldObjects = {};
 
             function init() {
@@ -46,11 +46,13 @@
                 plane.position.z = 15;
                 scene.add(plane);
 
-                loadStorage(); 
-
-                var light = new THREE.AmbientLight(0x404040);
-                light.intensity = 4;
+                var light = new THREE.AmbientLight(0xffffff);
+                light.intensity = 0.5;
+                //light.position(0, 40, 0);
                 scene.add(light);
+
+                loadTruck();
+                loadStorage();
             }
 
             function onWindowResize() {
@@ -98,11 +100,8 @@
                     // onLoad callback, Here the loaded data is assumed to be an object
                     function (truck) {
                         // Add the loaded object to the scene
-                        group = new THREE.Group();
-                        group.add(truck);
-
-                        scene.add(group);
-                        worldObjects[command.parameters.guid] = group;
+                        truckObject = truck;
+                        scene.add(truck);
                     }
                 );
             }
@@ -131,34 +130,41 @@
                             group.add(robot);
 
                             scene.add(group);
+                            console.log("TRYING TO LOAD THE ROBOT");
                             worldObjects[command.parameters.guid] = group;
                         }
+                        else if (command.parameters.type == "truck") {
+                            console.log("TRYING TO LOAD THE TRUCK");
+                            //var loader = new THREE.ObjectLoader();
+                            //loader.load("/Objects/truck.json",
+                            //    // onLoad callback, Here the loaded data is assumed to be an object
+                            //    function (truck) {
+                            //        // Add the loaded object to the scene
+                                    
+                            //        scene.add(truck);
+                            //        worldObjects[command.parameters.guid] = truck;
+                            //        console.log(truck);
+                            //    },
 
-                        if (command.parameters.type == "truck") {
-                            var loader = new THREE.ObjectLoader();
-                            loader.load("/Objects/truck.json",
-                                // onLoad callback, Here the loaded data is assumed to be an object
-                                function (truck) {
-                                    // Add the loaded object to the scene
-                                    group = new THREE.Group();
-                                    group.add(truck);
+                            //    function (xhr) {
+                            //        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+                            //    },
+                            //);
 
-                                    scene.add(group);
-                                    worldObjects[command.parameters.guid] = group;
-                                }
-                            );
+                            worldObjects[command.parameters.guid] = truckObject;
                         }
                     }
 
                     var object = worldObjects[command.parameters.guid];
+                    if (object != null) {
+                        object.position.x = command.parameters.x;
+                        object.position.y = command.parameters.y;
+                        object.position.z = command.parameters.z;
 
-                    object.position.x = command.parameters.x;
-                    object.position.y = command.parameters.y;
-                    object.position.z = command.parameters.z;
-
-                    object.rotation.x = command.parameters.rotationX;
-                    object.rotation.y = command.parameters.rotationY;
-                    object.rotation.z = command.parameters.rotationZ;
+                        object.rotation.x = command.parameters.rotationX;
+                        object.rotation.y = command.parameters.rotationY;
+                        object.rotation.z = command.parameters.rotationZ;
+                    }
                 }
             }
 

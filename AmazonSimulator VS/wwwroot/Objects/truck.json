@@ -126,15 +126,6 @@
                 "receiveShadow": true,
                 "geometry": "4965A318-683E-376C-89C9-61F99533C378"
             }]
-        },{
-            "name": "HemisphereLight",
-            "uuid": "9E70F1B8-17F0-390E-9BC5-86CE4D7CDC58",
-            "matrix": [-1,0,0,0,0,1,-0,0,0,-0,-1,0,0,0,0,1],
-            "visible": true,
-            "type": "HemisphereLight",
-            "color": 3376639,
-            "intensity": 0.6,
-            "distance": 0
         }],
         "type": "Scene",
         "matrix": [1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]
