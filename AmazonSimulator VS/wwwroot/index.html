@@ -92,6 +92,21 @@
                 scene.add(storage);
             }
 
+            function loadTruck() {
+                var loader = new THREE.ObjectLoader();
+                loader.load("/Objects/truck.json",
+                    // onLoad callback, Here the loaded data is assumed to be an object
+                    function (truck) {
+                        // Add the loaded object to the scene
+                        group = new THREE.Group();
+                        group.add(truck);
+
+                        scene.add(group);
+                        worldObjects[command.parameters.guid] = group;
+                    }
+                );
+            }
+
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data);
@@ -119,20 +134,20 @@
                             worldObjects[command.parameters.guid] = group;
                         }
 
-                        //if (command.parameters.type == "truck") {
-                        //    var loader = new THREE.ObjectLoader();
-                        //    loader.load("/Objects/truck.json",
-                        //        // onLoad callback, Here the loaded data is assumed to be an object
-                        //        function (truck) {
-                        //            // Add the loaded object to the scene
-                        //            group = new THREE.Group();
-                        //            group.add(truck);
+                        if (command.parameters.type == "truck") {
+                            var loader = new THREE.ObjectLoader();
+                            loader.load("/Objects/truck.json",
+                                // onLoad callback, Here the loaded data is assumed to be an object
+                                function (truck) {
+                                    // Add the loaded object to the scene
+                                    group = new THREE.Group();
+                                    group.add(truck);
 
-                        //            scene.add(group);
-                        //            worldObjects[command.parameters.guid] = group;
-                        //        }
-                        //    );
-                        //}
+                                    scene.add(group);
+                                    worldObjects[command.parameters.guid] = group;
+                                }
+                            );
+                        }
                     }
 
                     var object = worldObjects[command.parameters.guid];

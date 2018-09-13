@@ -9,7 +9,6 @@ namespace Models {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         private int c = 0;
-        private int ct = 0; 
         
         public World() {
             Model3D r = CreateRobot(0,0,0);
@@ -57,31 +56,55 @@ namespace Models {
         public bool Update(int tick)
         {
             for(int i = 0; i < worldObjects.Count; i++) {
-                c++;
-                ct++; 
-                if (c > 100 || ct > 100)
-                {
-                    c = 0;
-                    ct = 0; 
-                }
-                Console.WriteLine(c);
+
                 Model3D u = worldObjects[i];
-                u.Move(c, 0, c);
-                Model3D t = worldObjects[i];
-                u.Move(c, 0, c);
-                UpdateModel3DCommand update = new UpdateModel3DCommand(u);
-                SendCommandToObservers(update);
-                update.ToJson();
+                
                 if(u is IUpdatable) {
                     bool needsCommand = ((IUpdatable)u).Update(tick);
 
                     if(needsCommand) {
+                        moveRobot(u);
+                        moveTruck(u);
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
             }
 
             return true;
+        }
+
+        private void moveRobot(Model3D model)
+        {
+            if (model.type == "robot")
+            {
+                c++;
+                if (c > 100)
+                {
+                    c = 0;
+                }
+
+                model.Move(c, 0, c);
+
+                UpdateModel3DCommand update = new UpdateModel3DCommand(model);
+                SendCommandToObservers(update);
+            }
+        }
+
+        private void moveTruck(Model3D model)
+        {
+            if (model.type == "truck")
+            {
+                c++;
+                if (c > 100)
+                {
+                    c = 0;
+                }
+
+                model.Move(c, 0, c);
+
+                UpdateModel3DCommand update = new UpdateModel3DCommand(model);
+                SendCommandToObservers(update);
+            }
         }
     }
 
