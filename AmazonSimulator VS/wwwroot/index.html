@@ -19,6 +19,7 @@
             var cameraControls;
             var truckObject;
             var worldObjects = {};
+            var rackObject; 
 
             function init() {
                 
@@ -53,6 +54,7 @@
 
                 loadTruck();
                 loadStorage();
+                loadRack(); 
             }
 
             function onWindowResize() {
@@ -106,6 +108,19 @@
                 );
             }
 
+            function loadRack() {
+                var loader = new THREE.ObjectLoader(); 
+                loader.load("/Objects/rack.json",
+                    function (rack) {
+                        rackObject = rack
+                        rack.position.x = 10;
+                        rack.position.y = 0.05;
+                        rack.position.z = 10;
+                        scene.add(rack);
+                    }
+                );
+            }
+
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data);
@@ -153,6 +168,10 @@
 
                             worldObjects[command.parameters.guid] = truckObject;
                         }
+
+                       // else if (command.parameters.type == "rack") {
+                            //console.log("TRYING TO LOAD THE Rack");
+                            //worldObjects[command.parameters.guid] = rackObject;
                     }
 
                     var object = worldObjects[command.parameters.guid];
