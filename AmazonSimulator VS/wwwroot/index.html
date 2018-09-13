@@ -46,9 +46,6 @@
                 plane.position.z = 15;
                 scene.add(plane);
 
-                
-
-                loadTruck();
                 loadStorage(); 
 
                 var light = new THREE.AmbientLight(0x404040);
@@ -83,20 +80,6 @@
                 var cube = new THREE.Mesh(geometry, cubeMaterial);
 
                 scene.add(cube);
-            }
-
-            function loadTruck() {
-                var loader = new THREE.ObjectLoader();
-                loader.load("/Objects/truck.json",
-                    // onLoad callback, Here the loaded data is assumed to be an object
-                    function (truck) {
-                        // Add the loaded object to the scene
-                        truck.position.x = -35;
-                        truck.position.y = 0.05;
-                        truck.position.z = 15;
-                        scene.add(truck);
-                    }
-                );
             }
 
             function loadStorage() {
@@ -135,6 +118,21 @@
                             scene.add(group);
                             worldObjects[command.parameters.guid] = group;
                         }
+
+                        //if (command.parameters.type == "truck") {
+                        //    var loader = new THREE.ObjectLoader();
+                        //    loader.load("/Objects/truck.json",
+                        //        // onLoad callback, Here the loaded data is assumed to be an object
+                        //        function (truck) {
+                        //            // Add the loaded object to the scene
+                        //            group = new THREE.Group();
+                        //            group.add(truck);
+
+                        //            scene.add(group);
+                        //            worldObjects[command.parameters.guid] = group;
+                        //        }
+                        //    );
+                        //}
                     }
 
                     var object = worldObjects[command.parameters.guid];
