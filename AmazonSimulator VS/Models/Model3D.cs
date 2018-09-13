@@ -23,8 +23,8 @@ namespace Models {
 
         public bool needsUpdate = true;
 
-        public Model3D(double x, double y, double z, double rotationX, double rotationY, double rotationZ) {
-            this.type = "robot";
+        public Model3D(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) {
+            this.type = type;
             this.guid = Guid.NewGuid();
 
             this._x = x;

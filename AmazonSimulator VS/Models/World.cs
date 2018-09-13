@@ -9,17 +9,28 @@ namespace Models {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         private int c = 0;
+        private int ct = 0; 
         
         public World() {
             Model3D r = CreateRobot(0,0,0);
             r.Move(4.6, 0, 13);
+            Model3D t = CreateTruck(0, 0, 0);
+            t.Move(-35, 0.05, 15);
         }
 
         private Model3D CreateRobot(double x, double y, double z) {
-            Model3D r = new Model3D(x,y,z,0,0,0);
+            Model3D r = new Model3D("robot",x,y,z,0,0,0);
             worldObjects.Add(r);
             return r;
         }
+
+        private Model3D CreateTruck(double x, double y, double z)
+        {
+            Model3D t = new Model3D("truck", x, y, z, 0, 0, 0);
+            worldObjects.Add(t);
+            return t; 
+        }
+
 
         public IDisposable Subscribe(IObserver<Command> observer)
         {
@@ -47,12 +58,16 @@ namespace Models {
         {
             for(int i = 0; i < worldObjects.Count; i++) {
                 c++;
-                if (c > 100)
+                ct++; 
+                if (c > 100 || ct > 100)
                 {
                     c = 0;
+                    ct = 0; 
                 }
                 Console.WriteLine(c);
                 Model3D u = worldObjects[i];
+                u.Move(c, 0, c);
+                Model3D t = worldObjects[i];
                 u.Move(c, 0, c);
                 UpdateModel3DCommand update = new UpdateModel3DCommand(u);
                 SendCommandToObservers(update);
