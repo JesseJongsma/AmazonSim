@@ -10,14 +10,12 @@ namespace Models {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         private int c = 0;
-        private double tr_x = -35, tr_y = 0.05, tr_z = 125; 
         
         public World() {
             Model3D r = CreateRobot(0,0,0);
             r.Move(4.6, 0, 13);
 
-            Model3D t = CreateTruck(0,0,0);
-            t.Move(tr_x, tr_y, tr_z);
+            Truck t = CreateTruck(0,0,0);
         }
 
         private Model3D CreateRobot(double x, double y, double z) {
@@ -26,9 +24,9 @@ namespace Models {
             return r;
         }
 
-        private Model3D CreateTruck(double x, double y, double z)
+        private Truck CreateTruck(double x, double y, double z)
         {
-            Model3D t = new Model3D("truck", x, y, z, 0, 0, 0);
+            Truck t = new Truck("truck", x, y, z, 0, 0, 0);
             worldObjects.Add(t);
             return t; 
         }
@@ -94,19 +92,23 @@ namespace Models {
                 model.Move(c, 0, c);
             }
         }
-
+        private double tr_z = 125;
+        private int count = 0; 
         private void moveTruck(Model3D model)
         {
             if (model.type == "truck")
             {
-                tr_z = tr_z - 0.5;
-                if (tr_z == 12.5)
-                    Thread.Sleep(5000);
+                Console.WriteLine(count);
+                if (tr_z == 12.5 && count != 100)
+                    count++;
+                else
+                {
+                    tr_z = tr_z - 0.5;
+                    model.Move(-35, 0.05, tr_z);
+                }
 
                 if (tr_z == -140)
                     goto Stop;
-
-                model.Move(tr_x, tr_y, tr_z);
             }
         Stop:;
         }
