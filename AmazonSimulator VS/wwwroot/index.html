@@ -48,6 +48,8 @@
                 plane.position.z = 15;
                 scene.add(plane);
 
+                loadRoad();
+
                 var light = new THREE.AmbientLight(0xffffff);
                 light.intensity = 0.5;
                 //light.position(0, 40, 0);
@@ -123,6 +125,17 @@
                         scene.add(rack);
                     }
                 );
+            }
+
+            function loadRoad() {
+                var geometry = new THREE.PlaneGeometry(10, 50, 32);
+                var material = new THREE.MeshBasicMaterial({ color: 0x757575, side: THREE.DoubleSide });
+                var plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = 15;
+                plane.position.y = 0.1
+                plane.position.z = 15;
+                scene.add(plane);
             }
 
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");

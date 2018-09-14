@@ -98,9 +98,13 @@ namespace Models {
         {
             if (model.type == "truck")
             {
-                Console.WriteLine(count);
+
                 if (tr_z == 12.5 && count != 100)
+                {
                     count++;
+                    model.Move(model.x, model.y, model.z);
+                    Console.WriteLine(count);
+                }
                 else
                 {
                     tr_z = tr_z - 0.5;
