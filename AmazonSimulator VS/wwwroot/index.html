@@ -13,11 +13,12 @@
         }
 
         var exampleSocket;
+        var truckObject;
+        var loaded = false;
 
         window.onload = function () {
             var camera, scene, renderer;
             var cameraControls;
-            var truckObject;
             var worldObjects = {};
             var rackObject; 
 
@@ -52,7 +53,6 @@
                 //light.position(0, 40, 0);
                 scene.add(light);
 
-                loadTruck();
                 loadStorage();
                 loadRack(); 
             }
@@ -96,14 +96,18 @@
                 scene.add(storage);
             }
 
-            function loadTruck() {
+            function loadTruck(command) {
                 var loader = new THREE.ObjectLoader();
+
                 loader.load("/Objects/truck.json",
                     // onLoad callback, Here the loaded data is assumed to be an object
                     function (truck) {
                         // Add the loaded object to the scene
                         truckObject = truck;
-                        scene.add(truck);
+                        console.log(truckObject);
+                        truckObject.position.set(0, -150, 0);
+                        worldObjects[command.parameters.guid] = truckObject;
+                        scene.add(truckObject);
                     }
                 );
             }
@@ -149,7 +153,14 @@
                             worldObjects[command.parameters.guid] = group;
                         }
                         else if (command.parameters.type == "truck") {
-                            console.log("TRYING TO LOAD THE TRUCK");
+                            
+                            if (!loaded) {
+                                console.log("TRYING TO LOAD THE TRUCK");
+                                loaded = true;
+                                loadTruck(command);
+                            }
+                            
+                            //console.log(truckObject);
                             //var loader = new THREE.ObjectLoader();
                             //loader.load("/Objects/truck.json",
                             //    // onLoad callback, Here the loaded data is assumed to be an object
@@ -166,7 +177,7 @@
                             //    },
                             //);
 
-                            worldObjects[command.parameters.guid] = truckObject;
+                            //worldObjects[command.parameters.guid] = truckObject;
                         }
 
                        // else if (command.parameters.type == "rack") {
