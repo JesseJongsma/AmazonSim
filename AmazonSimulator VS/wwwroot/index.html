@@ -14,16 +14,21 @@
         }
 
         var exampleSocket;
-        var truckObject;
+        var starShipObject;
         var loaded = false;
         var drawScene;
+        var radius = 0, height = 0;
+        var i = 100;
+        var cone = null;
 
         window.onload = function () {
             var camera, scene, renderer;
             var cameraControls;
             var worldObjects = {};
+            var spaceShipGroup = new THREE.Group();
             drawScene = new DrawScene(scene);
             var rackObject;
+            var radius = 0, height = 0;
 
             function init() {
 
@@ -92,33 +97,91 @@
                 scene.add(storage);
             }
 
-            function loadTruck(command) {
-                var loader = new THREE.ObjectLoader();
+            function loadOBJModel(modelPath, modelName, texturePath, textureName, onload) {
+                new THREE.MTLLoader()
+                    .setPath(texturePath)
+                    .load(textureName, function (materials) {
 
-                loader.load("/Objects/truck.json",
-                    // onLoad callback, Here the loaded data is assumed to be an object
-                    function (truck) {
-                        // Add the loaded object to the scene
-                        truckObject = truck;
-                        console.log(truckObject);
-                        truckObject.position.set(0, -150, 0);
-                        worldObjects[command.parameters.guid] = truckObject;
-                        scene.add(truckObject);
-                    }
-                );
+                        materials.preload();
+
+                        new THREE.OBJLoader()
+                            .setMaterials(materials)
+                            .setPath(modelPath)
+                            .load(modelName, function (object) {
+                                onload(object);
+                                spaceShipGroup.add(object);
+
+                                scene.add(spaceShipGroup);
+
+                            });
+
+                    });
             }
 
             function loadRack() {
                 var loader = new THREE.ObjectLoader();
                 loader.load("/Objects/rack.json",
                     function (rack) {
-                        rackObject = rack
+                        rackObject = rack;
                         rack.position.x = 10;
                         rack.position.y = 0.05;
                         rack.position.z = 10;
                         scene.add(rack);
                     }
                 );
+            }
+
+            function drawCone(x, y, z, rad = null, hght = null) {
+                var geometry, material;
+                
+                if (i > 50) {
+                    i = i - 10;
+                }
+                height = (y / 100) * i;
+
+                if (radius <= 4) {
+                    radius++;
+                }
+
+                // Overwrite if optional arguments are given
+                if (hght != null) {
+                    height = hght;
+                }
+                if (rad != null) {
+                    radius = rad;
+                }
+
+
+                if (cone == null) {
+                    console.log("TRYING TO DRAW CONE");
+                    geometry = new THREE.ConeGeometry(radius, height, 32);
+                    material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                    cone = new THREE.Mesh(geometry, material);
+                    scene.add(cone);
+                }
+                else if (cone != null) {
+                    clearScene(cone)
+                    console.log("TRYING TO RE-DRAW CONE");
+                    geometry = new THREE.ConeGeometry(radius, height, 32);
+                    material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+                    cone = new THREE.Mesh(geometry, material);
+                    scene.add(cone);
+                }
+
+                cone.position.x = x;
+                cone.position.y = height;
+                cone.position.z = z;
+                //cone.height = height;
+                //cone.radius = radius;
+                console.log(radius);
+            }
+
+            function clearScene(obj)
+            {
+                scene.remove(obj);
+                obj.geometry.dispose();
+                obj.material.dispose();
+                obj = undefined;
             }
 
             function loadRoad() {
@@ -135,21 +198,24 @@
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data);
 
-                if (command.command == "update") {
+                if (command.command === "update") {
                     if (Object.keys(worldObjects).indexOf(command.parameters.guid) < 0) {
-                        if (command.parameters.type == "robot") {
+                        if (command.parameters.type === "robot") {
                             var group = drawScene.DrawRobot(0.9, 0.3, 0.9);
                             scene.add(group);
 
                             console.log("TRYING TO LOAD THE ROBOT");
                             worldObjects[command.parameters.guid] = group;
                         }
-                        else if (command.parameters.type == "truck") {
+                        else if (command.parameters.type === "starship") {
 
                             if (!loaded) {
-                                console.log("TRYING TO LOAD THE TRUCK");
+                                console.log("TRYING TO LOAD THE STARSHIP");
                                 loaded = true;
-                                loadTruck(command);
+                                loadOBJModel("/Objects/", "model.obj", "/Objects/", "material.mtl", (object) => {
+                                    object.scale.set(5, 5, 5);
+                                    worldObjects[command.parameters.guid] = spaceShipGroup;
+                                });
                             }
                         }
 
@@ -167,6 +233,16 @@
                         object.rotation.x = command.parameters.rotationX;
                         object.rotation.y = command.parameters.rotationY;
                         object.rotation.z = command.parameters.rotationZ;
+
+                        if (command.parameters.z == 12.5 && command.parameters.type == "starship") {
+
+                            console.log(command.parameters.type);
+                            //console.log(command.parameters.z);
+                            drawCone(command.parameters.x, command.parameters.y, command.parameters.z);
+                        }
+                        else if (command.parameters.type == "starship" && command.parameters.z < 12.5 && cone != null) {
+                            clearScene(cone);
+                        }
                     }
                 }
             }
@@ -178,5 +254,7 @@
 
     <script src="three.min.js"></script>
     <script src="OrbitControls.js"></script>
+    <script src="OBJLoader.js"></script>
+    <script src="MTLLoader.js"></script>
 </body>
 </html>

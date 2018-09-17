@@ -2,31 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Controllers;
-using System.Threading; 
+using System.Threading;
 
-namespace Models {
+namespace Models
+{
     public class World : IObservable<Command>, IUpdatable
     {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         private int c = 0;
-        
-        public World() {
-            Robots robot = CreateRobot(4.6,0,13);
-            Trucks truck = CreateTruck(0,0,0);
+
+        public World()
+        {
+            Robots robot = CreateRobot(4.6, 0, 13);
+            Spaceships ship = CreateSpaceShip(-20, 25, 0);
         }
 
-        private Robots CreateRobot(double x, double y, double z) {
-            Robots robot = new Robots("robot",x,y,z,0,0,0);
+        private Robots CreateRobot(double x, double y, double z)
+        {
+            Robots robot = new Robots("robot", x, y, z, 0, 0, 0);
             worldObjects.Add(robot);
             return robot;
         }
 
-        private Trucks CreateTruck(double x, double y, double z)
+        private Spaceships CreateSpaceShip(double x, double y, double z)
         {
-            Trucks truck = new Trucks("truck", x, y, z, 0, 0, 0);
-            worldObjects.Add(truck);
-            return truck; 
+            Spaceships ship = new Spaceships("starship", x, y, z, 0, 0, 0);
+            worldObjects.Add(ship);
+            return ship;
         }
 
         private void DrawLine()
@@ -49,7 +52,8 @@ namespace Models {
 
         public IDisposable Subscribe(IObserver<Command> observer)
         {
-            if (!observers.Contains(observer)) {
+            if (!observers.Contains(observer))
+            {
                 observers.Add(observer);
 
                 SendCreationCommandsToObserver(observer);
@@ -57,30 +61,37 @@ namespace Models {
             return new Unsubscriber<Command>(observers, observer);
         }
 
-        private void SendCommandToObservers(Command c) {
-            for(int i = 0; i < this.observers.Count; i++) {
+        private void SendCommandToObservers(Command c)
+        {
+            for (int i = 0; i < this.observers.Count; i++)
+            {
                 this.observers[i].OnNext(c);
             }
         }
 
-        private void SendCreationCommandsToObserver(IObserver<Command> obs) {
-            foreach(Model3D m3d in worldObjects) {
+        private void SendCreationCommandsToObserver(IObserver<Command> obs)
+        {
+            foreach (Model3D m3d in worldObjects)
+            {
                 obs.OnNext(new UpdateModel3DCommand(m3d));
             }
         }
 
         public bool Update(int tick)
         {
-            for(int i = 0; i < worldObjects.Count; i++) {
+            for (int i = 0; i < worldObjects.Count; i++)
+            {
 
                 Model3D u = worldObjects[i];
-                
-                if(u is IUpdatable) {
+
+                if (u is IUpdatable)
+                {
                     bool needsCommand = ((IUpdatable)u).Update(tick);
 
-                    if(needsCommand) {
+                    if (needsCommand)
+                    {
                         moveRobot(u);
-                        moveTruck(u);
+                        moveSpaceship(u);
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -100,25 +111,44 @@ namespace Models {
                 model.Move(c, 0, c);
             }
         }
-        private double tr_z = 125;
-        private int count = 0; 
-        private void moveTruck(Model3D model)
+        private double ss_z = 125;
+        private int count = 0;
+        private double radius = 0;
+        private void moveSpaceship(Model3D model)
         {
-            if (model.type == "truck" && tr_z != -140)
+            if (model.type == "starship" && ss_z != -140)
             {
-                if (tr_z == 12.5 && count != 100)
+                if (ss_z == 12.5 && count != 100)
                 {
                     count++;
                     model.Move(model.x, model.y, model.z); // Set needsUpdate back to true
                 }
                 else
                 {
-                    tr_z = tr_z - 0.5;
-                    model.Move(-35, 0.05, tr_z);
+                    ss_z = ss_z - 0.5;
+                    model.Move(model.x, model.y, ss_z);
                 }
+
+                model.Move(model.x, model.y + Math.Cos(radius) * 0.5, model.z);
+                model.Rotate(model.rotationX, radius / 2, model.rotationZ);
+                radius += 0.25;
+                radius = (radius >= 360) ? 0 : radius; // reset radius
+            }
+            else if (ss_z == -140) // reset the starship to the initial position
+            {
+                ss_z = 125;
+                model.Move(-20, 25, ss_z);
+                count = 0;
             }
         }
+
+        private void DrawCone()
+        {
+            
+        }
     }
+
+
 
     internal class Unsubscriber<Command> : IDisposable
     {
@@ -131,7 +161,7 @@ namespace Models {
             this._observer = observer;
         }
 
-        public void Dispose() 
+        public void Dispose()
         {
             if (_observers.Contains(_observer))
                 _observers.Remove(_observer);
