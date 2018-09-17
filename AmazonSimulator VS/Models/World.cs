@@ -12,23 +12,31 @@ namespace Models {
         private int c = 0;
         
         public World() {
-            Model3D r = CreateRobot(0,0,0);
-            r.Move(4.6, 0, 13);
-
-            Truck t = CreateTruck(0,0,0);
+            Robots robot = CreateRobot(4.6,0,13);
+            Trucks truck = CreateTruck(0,0,0);
         }
 
-        private Model3D CreateRobot(double x, double y, double z) {
-            Model3D r = new Model3D("robot",x,y,z,0,0,0);
-            worldObjects.Add(r);
-            return r;
+        private Robots CreateRobot(double x, double y, double z) {
+            Robots robot = new Robots("robot",x,y,z,0,0,0);
+            worldObjects.Add(robot);
+            return robot;
         }
 
-        private Truck CreateTruck(double x, double y, double z)
+        private Trucks CreateTruck(double x, double y, double z)
         {
-            Truck t = new Truck("truck", x, y, z, 0, 0, 0);
-            worldObjects.Add(t);
-            return t; 
+            Trucks truck = new Trucks("truck", x, y, z, 0, 0, 0);
+            worldObjects.Add(truck);
+            return truck; 
+        }
+
+        private void DrawLine()
+        {
+
+        }
+
+        private void DrawRoad()
+        {
+
         }
 
         //private Model3D CreateRack(double x, double y, double z)
@@ -96,25 +104,19 @@ namespace Models {
         private int count = 0; 
         private void moveTruck(Model3D model)
         {
-            if (model.type == "truck")
+            if (model.type == "truck" && tr_z != -140)
             {
-
                 if (tr_z == 12.5 && count != 100)
                 {
                     count++;
-                    model.Move(model.x, model.y, model.z);
-                    Console.WriteLine(count);
+                    model.Move(model.x, model.y, model.z); // Set needsUpdate back to true
                 }
                 else
                 {
                     tr_z = tr_z - 0.5;
                     model.Move(-35, 0.05, tr_z);
                 }
-
-                if (tr_z == -140)
-                    goto Stop;
             }
-        Stop:;
         }
     }
 

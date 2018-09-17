@@ -7,7 +7,8 @@
 </head>
 
 <body style="margin:0px;padding:0px;overflow:hidden;">
-    <script>
+    <script type="text/javascript" src="Scripts/DrawScene.js"></script>
+    <script type="text/javascript">
         function parseCommand(input = "") {
             return JSON.parse(input);
         }
@@ -15,15 +16,17 @@
         var exampleSocket;
         var truckObject;
         var loaded = false;
+        var drawScene;
 
         window.onload = function () {
             var camera, scene, renderer;
             var cameraControls;
             var worldObjects = {};
-            var rackObject; 
+            drawScene = new DrawScene(scene);
+            var rackObject;
 
             function init() {
-                
+
                 camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 1000);
                 cameraControls = new THREE.OrbitControls(camera);
                 camera.position.z = 15;
@@ -32,7 +35,7 @@
                 cameraControls.update();
                 scene = new THREE.Scene();
                 loadSkyBox();
-                
+
                 renderer = new THREE.WebGLRenderer({ antialias: true });
                 renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight + 5);
@@ -56,7 +59,7 @@
                 scene.add(light);
 
                 loadStorage();
-                loadRack(); 
+                loadRack();
             }
 
             function onWindowResize() {
@@ -89,8 +92,8 @@
             }
 
             function loadStorage() {
-                var geometry = new THREE.BoxGeometry(10, 8, 25 );
-                var material = new THREE.MeshBasicMaterial({ color: 0x808080});
+                var geometry = new THREE.BoxGeometry(10, 8, 25);
+                var material = new THREE.MeshBasicMaterial({ color: 0x808080 });
                 var storage = new THREE.Mesh(geometry, material);
                 storage.position.x = -20;
                 storage.position.y = 4;
@@ -115,7 +118,7 @@
             }
 
             function loadRack() {
-                var loader = new THREE.ObjectLoader(); 
+                var loader = new THREE.ObjectLoader();
                 loader.load("/Objects/rack.json",
                     function (rack) {
                         rackObject = rack
@@ -128,14 +131,13 @@
             }
 
             function loadRoad() {
-                var geometry = new THREE.PlaneGeometry(10, 50, 32);
-                var material = new THREE.MeshBasicMaterial({ color: 0x757575, side: THREE.DoubleSide });
-                var plane = new THREE.Mesh(geometry, material);
-                plane.rotation.x = Math.PI / 2.0;
-                plane.position.x = 15;
-                plane.position.y = 0.1
-                plane.position.z = 15;
-                scene.add(plane);
+                var geometry = new THREE.Geometry();
+                var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+                geometry.vertices.push(new THREE.Vector3(1, 1, 1));
+                geometry.vertices.push(new THREE.Vector3(50, 1, 1));
+                var grid = new THREE.LineSegments(geometry, material);
+                console.log("ROAD IS LOADED.");
+                scene.add(grid);
             }
 
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
@@ -145,57 +147,24 @@
                 if (command.command == "update") {
                     if (Object.keys(worldObjects).indexOf(command.parameters.guid) < 0) {
                         if (command.parameters.type == "robot") {
-                            var geometry = new THREE.BoxGeometry(0.9, 0.3, 0.9);
-                            var cubeMaterials = [
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
-                                new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("textures/robot_front.png"), side: THREE.DoubleSide }), //BACK
-                            ];
-                            var material = new THREE.MeshFaceMaterial(cubeMaterials);
-                            var robot = new THREE.Mesh(geometry, material);
-                            robot.position.y = 0.15;
-
-                            var group = new THREE.Group();
-                            group.add(robot);
-
+                            var group = drawScene.DrawRobot(0.9, 0.3, 0.9);
                             scene.add(group);
+
                             console.log("TRYING TO LOAD THE ROBOT");
                             worldObjects[command.parameters.guid] = group;
                         }
                         else if (command.parameters.type == "truck") {
-                            
+
                             if (!loaded) {
                                 console.log("TRYING TO LOAD THE TRUCK");
                                 loaded = true;
                                 loadTruck(command);
                             }
-                            
-                            //console.log(truckObject);
-                            //var loader = new THREE.ObjectLoader();
-                            //loader.load("/Objects/truck.json",
-                            //    // onLoad callback, Here the loaded data is assumed to be an object
-                            //    function (truck) {
-                            //        // Add the loaded object to the scene
-                                    
-                            //        scene.add(truck);
-                            //        worldObjects[command.parameters.guid] = truck;
-                            //        console.log(truck);
-                            //    },
-
-                            //    function (xhr) {
-                            //        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-                            //    },
-                            //);
-
-                            //worldObjects[command.parameters.guid] = truckObject;
                         }
 
-                       // else if (command.parameters.type == "rack") {
-                            //console.log("TRYING TO LOAD THE Rack");
-                            //worldObjects[command.parameters.guid] = rackObject;
+                        // else if (command.parameters.type == "rack") {
+                        //console.log("TRYING TO LOAD THE Rack");
+                        //worldObjects[command.parameters.guid] = rackObject;
                     }
 
                     var object = worldObjects[command.parameters.guid];
