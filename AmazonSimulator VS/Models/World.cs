@@ -28,7 +28,7 @@ namespace Models
 
         private Spaceships CreateSpaceShip(double x, double y, double z)
         {
-            Spaceships ship = new Spaceships("starship", x, y, z, 0, 0, 0);
+            Spaceships ship = new Spaceships("spaceship", x, y, z, 0, 0, 0);
             worldObjects.Add(ship);
             return ship;
         }
@@ -38,16 +38,6 @@ namespace Models
             Model3D model = new Model3D(type, x, y, z, 0, 0, 0);
             worldObjects.Add(model);
             return model;
-        }
-
-        private void DrawLine()
-        {
-
-        }
-
-        private void DrawRoad()
-        {
-
         }
 
         //private Model3D CreateRack(double x, double y, double z)
@@ -98,9 +88,20 @@ namespace Models
 
                     if (needsCommand)
                     {
-                        moveRobot(u);
-                        moveSpaceship(u);
-                        moveEarth(u);
+                        if (u is Robots)
+                        {
+                            Robots robot = (Robots)u;
+                            robot.moveRobot(u);
+                        }
+                        else if (u is Spaceships)
+                        {
+                            Spaceships spaceship = (Spaceships)u;
+                            spaceship.moveSpaceship(u);
+                        }
+                        else if ((Model3D)u is Model3D)
+                        {
+                            moveEarth(u);
+                        }
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -109,51 +110,17 @@ namespace Models
             return true;
         }
 
-        private void moveRobot(Model3D model)
-        {
-            if (model.type == "robot")
-            {
-                c++;
-                if (c > 100)
-                    c = 0;
-
-                model.Move(c, 0, c);
-            }
-        }
-        private double ss_z = 125;
         private double radius = 0;
-        private void moveSpaceship(Model3D model)
-        {
-            int height = 25;
-            if (model.type == "starship" && ss_z != -140)
-            {
-                model.Move(model.x, height + Math.Cos(radius) * 1.1, ss_z);
-                model.Rotate(model.rotationX, radius / 2, model.rotationZ);
-
-                ss_z -= 0.5;
-                radius += 0.25;
-                radius = (radius >= 360) ? 0 : radius; // reset radius
-            }
-            else if (model.type == "starship" && ss_z == -140) // reset the starship to the initial position
-            {
-                ss_z = 125;
-                model.Move(model.x, height, ss_z);
-            }
-        }
-
         private void moveEarth(Model3D model)
         {
             if (model.type == "earth")
             {
-                model.Rotate(0.01, 0, 0.01);
-                model.Rotate(model.rotationX, radius / 100, model.rotationZ);
+                model.Rotate(-0.1, 0, -0.1);
+                model.Rotate(model.rotationX, radius, model.rotationZ);
                 model.Move(model.x, model.y, model.z);
+                radius = radius + 0.01;
+                radius = (radius >= 360) ? 0 : radius;
             }
-        }
-
-        private void DrawCone()
-        {
-
         }
     }
 
