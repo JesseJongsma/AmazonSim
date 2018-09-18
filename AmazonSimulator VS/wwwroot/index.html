@@ -49,7 +49,7 @@
 
                 window.addEventListener('resize', onWindowResize, false);
 
-                var geometry = new THREE.PlaneGeometry(81, 50, 32);
+                var geometry = new THREE.PlaneGeometry(101, 50, 32);
                 var material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
                 var plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
@@ -93,13 +93,13 @@
                 var blue = 0x191970;
 
                 //Long wall
-                createWall(1, 8, 25, -40, 4, 0, grey);
+                createWall(1, 8, 25, -50, 4, 0, grey);
                 createWall(1, 8, 25, -30, 4, 0, grey);
                 //Short wall
                 createWall(3, 8, 1, -31.5, 4, 12.5, grey);
-                createWall(3, 8, 1, -38.5, 4, 12.5, grey);
+                createWall(13, 8, 1, -43.5, 4, 12.5, grey);
                 createWall(3, 8, 1, -31.5, 4, -12.5, grey);
-                createWall(3, 8, 1, -38.5, 4, -12.5, grey);
+                createWall(13, 8, 1, -43.5, 4, -12.5, grey);
                 //Door
                 createWall(4, 8, 1, -35, 4, 12.5, blue);
                 createWall(4, 8, 1, -35, 4, -12.5, blue);
