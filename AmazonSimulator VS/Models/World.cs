@@ -16,6 +16,8 @@ namespace Models
         {
             Robots robot = CreateRobot(4.6, 0, 13);
             Spaceships ship = CreateSpaceShip(-20, 25, 0);
+            HumanRobot bot = CreateHumanRobot(-35, 0, 0);
+
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -30,6 +32,13 @@ namespace Models
             Spaceships ship = new Spaceships("starship", x, y, z, 0, 0, 0);
             worldObjects.Add(ship);
             return ship;
+        }
+
+        private HumanRobot CreateHumanRobot(double x, double y, double z)
+        {
+            HumanRobot bot = new HumanRobot("humanRobot", x, y, z, 0, 0, 0);
+            worldObjects.Add(bot);
+            return bot;
         }
 
         private void DrawLine()
@@ -92,6 +101,7 @@ namespace Models
                     {
                         moveRobot(u);
                         moveSpaceship(u);
+                        moveHumanRobot(u);
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -146,6 +156,15 @@ namespace Models
         {
             
         }
+
+        private void moveHumanRobot(Model3D model)
+        {
+            if (model.type == "humanRobot")
+            {
+                model.Move(-35, 0.05, 0);
+            }
+        }
+
     }
 
 
