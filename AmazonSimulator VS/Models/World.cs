@@ -133,7 +133,6 @@ namespace Models
                 model.Rotate(model.rotationX, radius / 2, model.rotationZ);
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
-                Console.WriteLine(model.y);
             }
             else if (ss_z == -140) // reset the starship to the initial position
             {
