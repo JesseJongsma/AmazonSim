@@ -135,12 +135,12 @@
                 var geometry, material;
                 
                 if (i > 50) {
-                    i = i - 10;
+                    i = i - 25;
                 }
                 height = (y / 100) * i;
 
                 if (radius <= 4) {
-                    radius++;
+                    radius = radius + 0.15;
                 }
 
                 // Overwrite if optional arguments are given
@@ -181,7 +181,7 @@
                 scene.remove(obj);
                 obj.geometry.dispose();
                 obj.material.dispose();
-                obj = undefined;
+                obj = null;
             }
 
             function loadRoad() {
@@ -242,6 +242,8 @@
                         }
                         else if (command.parameters.type == "starship" && command.parameters.z < 12.5 && cone != null) {
                             clearScene(cone);
+                            radius = 0;
+                            height = 0;
                         }
                     }
                 }
