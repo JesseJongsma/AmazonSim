@@ -100,6 +100,7 @@ namespace Models
                     {
                         moveRobot(u);
                         moveSpaceship(u);
+                        moveEarth(u);
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -137,12 +138,11 @@ namespace Models
                     model.Move(model.x, 25, ss_z);
                 }
 
-                model.Move(model.x, model.y + Math.Cos(radius) * 1.5, model.z);
                 model.Rotate(model.rotationX, radius / 2, model.rotationZ);
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
             }
-            else if (ss_z == -140) // reset the starship to the initial position
+            else if (model.type == "starship" && ss_z == -140) // reset the starship to the initial position
             {
                 ss_z = 125;
                 model.Move(-20, 25, ss_z);
@@ -154,8 +154,10 @@ namespace Models
         {
             if (model.type == "earth")
             {
-                model.Rotate(model.rotationX, radius / 2, model.rotationZ);
-                radius = (radius >= 360) ? 0 : radius; // reset radius
+                model.Rotate(0.01, 0, 0.01);
+                model.Rotate(model.rotationX, radius / 100, model.rotationZ);
+                model.Move(model.x, model.y, model.z);
+                //radius = (radius >= 360) ? 0 : radius; // reset radius
             }
         }
 
