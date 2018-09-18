@@ -16,6 +16,7 @@ namespace Models
         {
             Robots robot = CreateRobot(4.6, 0, 13);
             Spaceships ship = CreateSpaceShip(-20, 25, 0);
+            Model3D earth = CreateModel3D("earth", 500, 10,500);
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -30,6 +31,13 @@ namespace Models
             Spaceships ship = new Spaceships("starship", x, y, z, 0, 0, 0);
             worldObjects.Add(ship);
             return ship;
+        }
+
+        private Model3D CreateModel3D(string type, double x, double y, double z)
+        {
+            Model3D model = new Model3D(type, x, y, z, 0, 0, 0);
+            worldObjects.Add(model);
+            return model;
         }
 
         private void DrawLine()
@@ -139,6 +147,15 @@ namespace Models
                 ss_z = 125;
                 model.Move(-20, 25, ss_z);
                 count = 0;
+            }
+        }
+
+        private void moveEarth(Model3D model)
+        {
+            if (model.type == "earth")
+            {
+                model.Rotate(model.rotationX, radius / 2, model.rotationZ);
+                radius = (radius >= 360) ? 0 : radius; // reset radius
             }
         }
 

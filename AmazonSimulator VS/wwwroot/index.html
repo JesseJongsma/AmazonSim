@@ -252,9 +252,6 @@
 
                     var object = worldObjects[command.parameters.guid];
                     if (object != null) {
-                        if (command.parameters.type == "starship") {
-                            console.log(command.parameters.y);
-                        }
                         object.position.x = command.parameters.x;
                         object.position.y = command.parameters.y;
                         object.position.z = command.parameters.z;
