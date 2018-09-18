@@ -24,5 +24,10 @@ namespace Models
                 model.Move(c, 0, c);
             }
         }
+
+        public void DijkstraAlgorithm()
+        {
+
+        }
     }
 }
