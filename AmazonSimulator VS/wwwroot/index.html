@@ -20,6 +20,7 @@
         var radius = 0, height = 0;
         var i = 100;
         var cone = null;
+        var earth
 
         window.onload = function () {
             var camera, scene, renderer;
@@ -109,10 +110,6 @@
                             .setPath(modelPath)
                             .load(modelName, function (object) {
                                 onload(object);
-                                spaceShipGroup.add(object);
-
-                                scene.add(spaceShipGroup);
-
                             });
 
                     });
@@ -215,8 +212,20 @@
                                 loadOBJModel("/Objects/", "model.obj", "/Objects/", "material.mtl", (object) => {
                                     object.scale.set(5, 5, 5);
                                     worldObjects[command.parameters.guid] = spaceShipGroup;
+                                    spaceShipGroup.add(object);
+                                    scene.add(spaceShipGroup);
                                 });
                             }
+                        }
+                        else if (command.parameters.type === "earth") {
+                            console.log("TRYING TO LOAD EARTH");
+                            loadOBJModel("/Objects/", "Earth.obj", "/Objects/", "Earth.mtl", (obj) => {
+                                obj.position.x = 500;
+                                obj.position.y = 10;
+                                obj.position.z = 500;
+                                obj.scale.set(5, 5, 5);
+                                scene.add(obj);
+                            });
                         }
 
                         // else if (command.parameters.type == "rack") {
