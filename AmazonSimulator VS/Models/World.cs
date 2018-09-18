@@ -121,18 +121,19 @@ namespace Models
                 if (ss_z == 12.5 && count != 100)
                 {
                     count++;
-                    model.Move(model.x, model.y, model.z); // Set needsUpdate back to true
+                    model.Move(model.x, 25, model.z); // Set needsUpdate back to true
                 }
                 else
                 {
-                    ss_z = ss_z - 0.5;
-                    model.Move(model.x, model.y, ss_z);
+                    ss_z -= 0.5;
+                    model.Move(model.x, 25, ss_z);
                 }
 
-                model.Move(model.x, model.y + Math.Cos(radius) * 0.5, model.z);
+                model.Move(model.x, model.y + Math.Cos(radius) * 1.5, model.z);
                 model.Rotate(model.rotationX, radius / 2, model.rotationZ);
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
+                Console.WriteLine(model.y);
             }
             else if (ss_z == -140) // reset the starship to the initial position
             {

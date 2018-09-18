@@ -135,7 +135,7 @@
                 var geometry, material;
                 
                 if (i > 50) {
-                    i = i - 25;
+                    i = i - 10;
                 }
                 height = (y / 100) * i;
 
@@ -226,6 +226,9 @@
 
                     var object = worldObjects[command.parameters.guid];
                     if (object != null) {
+                        if (command.parameters.type == "starship") {
+                            console.log(command.parameters.y);
+                        }
                         object.position.x = command.parameters.x;
                         object.position.y = command.parameters.y;
                         object.position.z = command.parameters.z;
@@ -244,6 +247,7 @@
                             clearScene(cone);
                             radius = 0;
                             height = 0;
+                            i = 100;
                         }
                     }
                 }
