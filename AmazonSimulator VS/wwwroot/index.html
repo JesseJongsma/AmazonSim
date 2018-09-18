@@ -48,12 +48,12 @@
 
                 window.addEventListener('resize', onWindowResize, false);
 
-                var geometry = new THREE.PlaneGeometry(80, 50, 32);
+                var geometry = new THREE.PlaneGeometry(81, 50, 32);
                 var material = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
                 var plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
-                plane.position.x = 15;
-                plane.position.z = 15;
+                plane.position.x = 0;
+                plane.position.z = 0;
                 scene.add(plane);
 
                 loadRoad();
@@ -88,12 +88,29 @@
             }
 
             function loadStorage() {
-                var geometry = new THREE.BoxGeometry(10, 8, 25);
-                var material = new THREE.MeshBasicMaterial({ color: 0x808080 });
+                var grey = 0x808080;
+                var blue = 0x191970;
+
+                //Long wall
+                createWall(1, 8, 25, -40, 4, 0, grey);
+                createWall(1, 8, 25, -30, 4, 0, grey);
+                //Short wall
+                createWall(3, 8, 1, -31.5, 4, 12.5, grey);
+                createWall(3, 8, 1, -38.5, 4, 12.5, grey);
+                createWall(3, 8, 1, -31.5, 4, -12.5, grey);
+                createWall(3, 8, 1, -38.5, 4, -12.5, grey);
+                //Door
+                createWall(4, 8, 1, -35, 4, 12.5, blue);
+                createWall(4, 8, 1, -35, 4, -12.5, blue);
+            }
+
+            function createWall(witdh, height, depth, x, y, z, giveColor) {
+                var geometry = new THREE.BoxGeometry(witdh,height,depth);
+                var material = new THREE.MeshBasicMaterial({ color: giveColor });
                 var storage = new THREE.Mesh(geometry, material);
-                storage.position.x = -20;
-                storage.position.y = 4;
-                storage.position.z = 15;
+                storage.position.x = x;
+                storage.position.y = y;
+                storage.position.z = z;
                 scene.add(storage);
             }
 
