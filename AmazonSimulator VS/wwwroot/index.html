@@ -16,6 +16,7 @@
         var exampleSocket;
         var spaceShipObject;
         var loaded = false;
+        var loaded_humanRobot = false;
         var drawScene;
         var radius = 0, height = 0;
         var i = 100;
@@ -28,6 +29,7 @@
             var cameraControls;
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
+            var humanRobot = new THREE.Group();
             drawScene = new DrawScene(scene);
             var rackObject;
             var radius = 0;
@@ -182,13 +184,29 @@
             }
 
             function loadRoad() {
-                var geometry = new THREE.Geometry();
-                var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
-                geometry.vertices.push(new THREE.Vector3(1, 1, 1));
-                geometry.vertices.push(new THREE.Vector3(50, 1, 1));
-                var grid = new THREE.LineSegments(geometry, material);
-                console.log("ROAD IS LOADED.");
-                scene.add(grid);
+                //In de length
+                createRoad(82, 2, 5, 20);
+                createRoad(82, 2, 5, -20);
+                for (var i = 10; i >= -10; i = i - 10){
+                    createRoad(64, 2, 13, i);
+                }
+
+                //In de width
+                createRoad(2, 40, -35, 0);
+                for (var i = 45; i >= -20; i = i - 5) { 
+                    createRoad(2, 40, i, 0);
+                }
+            }
+
+            function createRoad(length, depth, x, z) {
+                var geometry = new THREE.PlaneGeometry(length, depth, 32);
+                var material = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
+                var plane = new THREE.Mesh(geometry, material);
+                plane.rotation.x = Math.PI / 2.0;
+                plane.position.x = x;
+                plane.position.y = 0.05;
+                plane.position.z = z;
+                scene.add(plane);
             }
 
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
@@ -225,6 +243,19 @@
                                 worldObjects[command.parameters.guid] = obj;
                                 scene.add(obj);
                             });
+                        }
+
+                        else if (command.parameters.type === "humanRobot") {
+                            if (!loaded_humanRobot) {
+                                console.log("TRYING TO LOAD THE HUMAN ROBOT");
+                                loaded_humanRobot = true;
+                                loadOBJModel("/Objects/", "Robot.obj", "/Objects/", "Robot.mtl", (object) => {
+                                    object.scale.set(0.01, 0.01, 0.01);
+                                    worldObjects[command.parameters.guid] = humanRobot;
+                                    humanRobot.add(object);
+                                    scene.add(humanRobot);
+                                });
+                            }
                         }
 
                         // else if (command.parameters.type == "rack") {
