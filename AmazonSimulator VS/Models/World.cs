@@ -15,8 +15,8 @@ namespace Models
         public World()
         {
             Robots robot = CreateRobot(4.6, 0, 13);
-            Spaceships ship = CreateSpaceShip(-20, 25, 0);
-            Model3D earth = CreateModel3D("earth", 500, 10,500);
+            Spaceships ship = CreateSpaceShip(-45, 25, 0);
+            Model3D earth = CreateModel3D("earth", 500, 10, 500);
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -121,32 +121,23 @@ namespace Models
             }
         }
         private double ss_z = 125;
-        private int count = 0;
         private double radius = 0;
         private void moveSpaceship(Model3D model)
         {
+            int height = 25;
             if (model.type == "starship" && ss_z != -140)
             {
-                if (ss_z == 12.5 && count != 100)
-                {
-                    count++;
-                    model.Move(model.x, 25, model.z); // Set needsUpdate back to true
-                }
-                else
-                {
-                    ss_z -= 0.5;
-                    model.Move(model.x, 25, ss_z);
-                }
-
+                model.Move(model.x, height + Math.Cos(radius) * 1.1, ss_z);
                 model.Rotate(model.rotationX, radius / 2, model.rotationZ);
+
+                ss_z -= 0.5;
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
             }
             else if (model.type == "starship" && ss_z == -140) // reset the starship to the initial position
             {
                 ss_z = 125;
-                model.Move(-20, 25, ss_z);
-                count = 0;
+                model.Move(model.x, height, ss_z);
             }
         }
 
@@ -157,13 +148,12 @@ namespace Models
                 model.Rotate(0.01, 0, 0.01);
                 model.Rotate(model.rotationX, radius / 100, model.rotationZ);
                 model.Move(model.x, model.y, model.z);
-                //radius = (radius >= 360) ? 0 : radius; // reset radius
             }
         }
 
         private void DrawCone()
         {
-            
+
         }
     }
 

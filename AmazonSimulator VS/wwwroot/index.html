@@ -21,6 +21,7 @@
         var i = 100;
         var cone = null;
         var earth = null;
+        var DEBUG = true;
 
         window.onload = function () {
             var camera, scene, renderer;
@@ -29,7 +30,7 @@
             var spaceShipGroup = new THREE.Group();
             drawScene = new DrawScene(scene);
             var rackObject;
-            var radius = 0, height = 0;
+            var radius = 0;
 
             function init() {
 
@@ -40,7 +41,9 @@
                 camera.position.x = 15;
                 cameraControls.update();
                 scene = new THREE.Scene();
-                loadSphereSkyBox();
+                if (!DEBUG) {
+                    loadSphereSkyBox();
+                }
 
                 renderer = new THREE.WebGLRenderer({ antialias: true });
                 renderer.setPixelRatio(window.devicePixelRatio);
@@ -106,7 +109,7 @@
             }
 
             function createWall(witdh, height, depth, x, y, z, giveColor) {
-                var geometry = new THREE.BoxGeometry(witdh,height,depth);
+                var geometry = new THREE.BoxGeometry(witdh, height, depth);
                 var material = new THREE.MeshBasicMaterial({ color: giveColor });
                 var storage = new THREE.Mesh(geometry, material);
                 storage.position.x = x;
@@ -145,53 +148,33 @@
                 );
             }
 
-            function drawCone(x, y, z, rad = null, hght = null) {
+            function drawCone(x, y, z, rad = null) {
                 var geometry, material;
-                
-                if (i > 50) {
-                    i = i - 10;
-                }
-                height = (y / 100) * i;
 
                 if (radius <= 4) {
-                    radius = radius + 0.15;
+                    radius = radius + 0.2;
                 }
 
                 // Overwrite if optional arguments are given
-                if (hght != null) {
-                    height = hght;
-                }
                 if (rad != null) {
                     radius = rad;
                 }
 
-
-                if (cone == null) {
-                    console.log("TRYING TO DRAW CONE");
-                    geometry = new THREE.ConeGeometry(radius, height, 32);
-                    material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                    cone = new THREE.Mesh(geometry, material);
-                    scene.add(cone);
+                if (cone != null) {
+                    clearScene(cone);
                 }
-                else if (cone != null) {
-                    clearScene(cone)
-                    console.log("TRYING TO RE-DRAW CONE");
-                    geometry = new THREE.ConeGeometry(radius, height, 32);
-                    material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-                    cone = new THREE.Mesh(geometry, material);
-                    scene.add(cone);
-                }
+                console.log("TRYING TO DRAW CONE");
+                geometry = new THREE.ConeGeometry(radius, y, 32);
+                material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2 });
+                cone = new THREE.Mesh(geometry, material);
+                scene.add(cone);
 
                 cone.position.x = x;
-                cone.position.y = height;
+                cone.position.y = y / 2;
                 cone.position.z = z;
-                //cone.height = height;
-                //cone.radius = radius;
-                console.log(radius);
             }
 
-            function clearScene(obj)
-            {
+            function clearScene(obj) {
                 scene.remove(obj);
                 obj.geometry.dispose();
                 obj.material.dispose();
@@ -262,13 +245,10 @@
                         object.rotation.y = command.parameters.rotationY;
                         object.rotation.z = command.parameters.rotationZ;
 
-                        if (command.parameters.z == 12.5 && command.parameters.type == "starship") {
-
-                            console.log(command.parameters.type);
-                            //console.log(command.parameters.z);
+                        if (command.parameters.z < 12.5 && command.parameters.z >= -12.5 && command.parameters.type == "starship") {
                             drawCone(command.parameters.x, command.parameters.y, command.parameters.z);
                         }
-                        else if (command.parameters.type == "starship" && command.parameters.z < 12.5 && cone != null) {
+                        else if (command.parameters.type == "starship" && command.parameters.z < -12.5 && cone != null) {
                             clearScene(cone);
                             radius = 0;
                             height = 0;
