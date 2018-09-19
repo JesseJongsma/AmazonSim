@@ -250,7 +250,7 @@
                                 console.log("TRYING TO LOAD THE HUMAN ROBOT");
                                 loaded_humanRobot = true;
                                 loadOBJModel("/Objects/", "Robot.obj", "/Objects/", "Robot.mtl", (object) => {
-                                    object.scale.set(0.01, 0.01, 0.01);
+                                    object.scale.set(0.05, 0.05, 0.05);
                                     worldObjects[command.parameters.guid] = humanRobot;
                                     humanRobot.add(object);
                                     scene.add(humanRobot);
