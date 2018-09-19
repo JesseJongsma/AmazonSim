@@ -17,7 +17,6 @@ namespace Models
             Robots robot = CreateRobot(4.6, 0, 13);
             Spaceships ship = CreateSpaceShip(-45, 25, 0);
             Model3D earth = CreateModel3D("earth", 500, 10, 500);
-            HumanRobot bot = CreateHumanRobot(-35, 0, 0);
 
         }
 
@@ -33,13 +32,6 @@ namespace Models
             Spaceships ship = new Spaceships("spaceship", x, y, z, 0, 0, 0);
             worldObjects.Add(ship);
             return ship;
-        }
-
-        private HumanRobot CreateHumanRobot(double x, double y, double z)
-        {
-            HumanRobot bot = new HumanRobot("humanRobot", x, y, z, 0, 0, 0);
-            worldObjects.Add(bot);
-            return bot;
         }
 
         private Model3D CreateModel3D(string type, double x, double y, double z)
@@ -107,11 +99,6 @@ namespace Models
                             Spaceships spaceship = (Spaceships)u;
                             spaceship.moveSpaceship(u);
                         }
-                        else if ((Model3D)u is Model3D)
-                        {
-                            moveEarth(u);
-                            moveHumanRobot(u);
-                        }
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -130,15 +117,6 @@ namespace Models
                 model.Move(model.x, model.y, model.z);
                 radius = radius + 0.01;
                 radius = (radius >= 360) ? 0 : radius;
-            }
-        }
-
-
-        private void moveHumanRobot(Model3D model)
-        {
-            if (model.type == "humanRobot")
-            {
-                model.Move(-35, 0.05, 0);
             }
         }
 

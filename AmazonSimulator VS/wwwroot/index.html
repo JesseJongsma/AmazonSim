@@ -29,7 +29,6 @@
             var cameraControls;
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
-            var humanRobot = new THREE.Group();
             drawScene = new DrawScene(scene);
             var rackObject;
             var radius = 0;
@@ -243,19 +242,6 @@
                                 worldObjects[command.parameters.guid] = obj;
                                 scene.add(obj);
                             });
-                        }
-
-                        else if (command.parameters.type === "humanRobot") {
-                            if (!loaded_humanRobot) {
-                                console.log("TRYING TO LOAD THE HUMAN ROBOT");
-                                loaded_humanRobot = true;
-                                loadOBJModel("/Objects/", "Robot.obj", "/Objects/", "Robot.mtl", (object) => {
-                                    object.scale.set(0.05, 0.05, 0.05);
-                                    worldObjects[command.parameters.guid] = humanRobot;
-                                    humanRobot.add(object);
-                                    scene.add(humanRobot);
-                                });
-                            }
                         }
 
                         // else if (command.parameters.type == "rack") {
