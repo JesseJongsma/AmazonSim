@@ -99,6 +99,11 @@ namespace Models
                             Spaceships spaceship = (Spaceships)u;
                             spaceship.moveSpaceship(u);
                         }
+                        else if (u is Model3D)
+                        {
+                            Model3D earth = (Model3D)u;
+                            moveEarth(earth);
+                        }
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
