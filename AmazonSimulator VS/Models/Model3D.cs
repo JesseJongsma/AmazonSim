@@ -11,6 +11,9 @@ namespace Models {
         private double _rX = 0;
         private double _rY = 0;
         private double _rZ = 0;
+        private double _width = 0;
+        private double _height = 0;
+        private double _depth = 0;
 
         public string type { get; }
         public Guid guid { get; }
@@ -20,6 +23,9 @@ namespace Models {
         public double rotationX { get { return _rX; } }
         public double rotationY { get { return _rY; } }
         public double rotationZ { get { return _rZ; } }
+        public double width { get { return _width; } }
+        public double height { get { return _height; } }
+        public double depth { get { return _depth; } }
 
         public bool needsUpdate = true;
 
@@ -50,6 +56,14 @@ namespace Models {
             this._rZ = rotationZ;
 
             needsUpdate = true;
+        }
+
+        public virtual void Transform(double width, double height, double depth)
+        {
+            _width = width;
+            _height = height;
+            _depth = depth;
+
         }
 
         public virtual bool Update(int tick)

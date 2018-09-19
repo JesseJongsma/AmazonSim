@@ -16,7 +16,6 @@
         var exampleSocket;
         var spaceShipObject;
         var loaded = false;
-        var loaded_humanRobot = false;
         var drawScene;
         var radius = 0, height = 0;
         var i = 100;
@@ -61,7 +60,7 @@
                 plane.position.z = 0;
                 scene.add(plane);
 
-                loadRoad();
+                //loadRoad();
 
                 var light = new THREE.AmbientLight(0xffffff);
                 light.intensity = 1;
@@ -83,7 +82,6 @@
                 cameraControls.update();
                 renderer.render(scene, camera);
             }
-
 
             function loadSphereSkyBox() {
                 var sphereGeometry = new THREE.SphereGeometry(900, 32, 32);
@@ -182,23 +180,20 @@
                 obj = null;
             }
 
-            function loadRoad() {
-                //In de length
+            function loadRoad(x, y, z) {
+                // length
                 createRoad(82, 2, 5, 20);
                 createRoad(82, 2, 5, -20);
-                //for (var i = 10; i >= -10; i = i - 10){
-                //    createRoad(64, 2, 13, i);
-                //}
 
-                //In de width
+                // width
                 createRoad(2, 40, -35, 0);
-                for (var i = 45; i >= -20; i = i - 10) { 
+                for (var i = 45; i >= -15; i = i - 10) { 
                     createRoad(2, 40, i, 0);
                 }
             }
 
-            function createRoad(length, depth, x, z) {
-                var geometry = new THREE.PlaneGeometry(length, depth, 32);
+            function createRoad(width, height, x, z) {
+                var geometry = new THREE.PlaneGeometry(width, height, 32);
                 var material = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
                 var plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
@@ -243,6 +238,16 @@
                                 scene.add(obj);
                             });
                         }
+                        else if (command.parameters.type === "road") {
+                            console.log("LOADING A ROAD");
+                            var parm = command.parameters;
+                            var depth = parm.depth;
+                            var width = parm.width;
+                            var height = parm.height;
+                            
+                            //createRoad(length, depth, x, y, z)
+                            createRoad(width, height, parm.x, parm.z);
+                        }
 
                         // else if (command.parameters.type == "rack") {
                         //console.log("TRYING TO LOAD THE Rack");
@@ -276,6 +281,7 @@
             }
 
             init();
+            console.log(worldObjects);
             animate();
         }
     </script>

@@ -14,10 +14,13 @@ namespace Models
 
         public World()
         {
-            Robots robot = CreateRobot(4.6, 0, 13);
-            Spaceships ship = CreateSpaceShip(-45, 25, 0);
-            Model3D earth = CreateModel3D("earth", 500, 10, 500);
-
+            CreateRobot(4.6, 0, 13);
+            CreateSpaceShip(-45, 25, 0);
+            CreateModel3D("earth", 500, 10, 500);
+            // function createRoad(length, depth, x, y, z)
+            // createRoad(82, 2, 5, 20);
+            // createRoad(82, 2, 5, -20);
+            drawRoads(5);
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -125,25 +128,55 @@ namespace Models
             }
         }
 
+        private void drawRoads(double amountRoads)
+        {
+            double x = 5, z = 20, width = 82, height = 2; //Starting point and standard values
+            //function loadRoad(x, y, z)
+            // length
+            //drawRoad(82, 2, 5, 20, 0);
+            //drawRoad(82, 2, 5, -20, 0);
+            drawRoad(x, z, width, height);
+            drawRoad(x, z * -1, width, height);
+
+            double percent = 1 / amountRoads;
+            double length = width;
+            double startPosition = -35;
+            double segment = length * percent;
+
+            Console.WriteLine(percent);
+            for (int i = 0; i <= amountRoads; i++)
+            {
+                drawRoad(startPosition + segment * i, 0, height, width / 2);
+            }
+            Console.WriteLine("Loading road...");
+        }
+
+        private void drawRoad(double x, double z, double width, double height)
+        {
+            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
+            road.Transform(width, height, 0);
+            worldObjects.Add(road);
+            SendCommandToObservers(new UpdateModel3DCommand(road));
+        }
+    }
+}
+
+
+
+internal class Unsubscriber<Command> : IDisposable
+{
+    private List<IObserver<Command>> _observers;
+    private IObserver<Command> _observer;
+
+    internal Unsubscriber(List<IObserver<Command>> observers, IObserver<Command> observer)
+    {
+        this._observers = observers;
+        this._observer = observer;
     }
 
-
-
-    internal class Unsubscriber<Command> : IDisposable
+    public void Dispose()
     {
-        private List<IObserver<Command>> _observers;
-        private IObserver<Command> _observer;
-
-        internal Unsubscriber(List<IObserver<Command>> observers, IObserver<Command> observer)
-        {
-            this._observers = observers;
-            this._observer = observer;
-        }
-
-        public void Dispose()
-        {
-            if (_observers.Contains(_observer))
-                _observers.Remove(_observer);
-        }
+        if (_observers.Contains(_observer))
+            _observers.Remove(_observer);
     }
 }
