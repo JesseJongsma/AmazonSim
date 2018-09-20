@@ -14,13 +14,13 @@ namespace Models
             Console.WriteLine("Spaceship created");
         }
 
-        public void moveSpaceship(Model3D model)
+        public void moveSpaceship()
         {
             int height = 25;
             if (ss_z != -140)
             {
-                model.Move(model.x, height + Math.Cos(radius) * 1.1, ss_z);
-                model.Rotate(model.rotationX, radius / 2, model.rotationZ);
+                Move(x, height + Math.Cos(radius) * 1.1, ss_z);
+                Rotate(rotationX, radius / 2, rotationZ);
 
                 ss_z -= 0.5;
                 radius += 0.25;
@@ -29,7 +29,7 @@ namespace Models
             else // reset the spaceship to the initial position
             {
                 ss_z = 125;
-                model.Move(model.x, height, ss_z);
+                Move(x, height, ss_z);
             }
         }
     }

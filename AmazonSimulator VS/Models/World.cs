@@ -10,22 +10,20 @@ namespace Models
     {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
+        public Nodes nodes = new Nodes();
         private int c = 0;
 
         public World()
         {
-            CreateRobot(4.6, 0, 13);
+            drawRoads(5);
+            CreateRobot(0, 0.05, 0);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
-            // function createRoad(length, depth, x, y, z)
-            // createRoad(82, 2, 5, 20);
-            // createRoad(82, 2, 5, -20);
-            drawRoads(5);
         }
 
         private Robots CreateRobot(double x, double y, double z)
         {
-            Robots robot = new Robots("robot", x, y, z, 0, 0, 0);
+            Robots robot = new Robots(nodes, "robot", x, y, z, 0, 0, 0);
             worldObjects.Add(robot);
             return robot;
         }
@@ -83,7 +81,6 @@ namespace Models
         {
             for (int i = 0; i < worldObjects.Count; i++)
             {
-
                 Model3D u = worldObjects[i];
 
                 if (u is IUpdatable)
@@ -95,12 +92,12 @@ namespace Models
                         if (u is Robots)
                         {
                             Robots robot = (Robots)u;
-                            robot.moveRobot(u);
+                            robot.moveRobot();
                         }
                         else if (u is Spaceships)
                         {
                             Spaceships spaceship = (Spaceships)u;
-                            spaceship.moveSpaceship(u);
+                            spaceship.moveSpaceship();
                         }
                         else if (u is Model3D)
                         {
@@ -131,24 +128,35 @@ namespace Models
         private void drawRoads(double amountRoads)
         {
             double x = 5, z = 20, width = 82, height = 2; //Starting point and standard values
-            //function loadRoad(x, y, z)
-            // length
-            //drawRoad(82, 2, 5, 20, 0);
-            //drawRoad(82, 2, 5, -20, 0);
+
             drawRoad(x, z, width, height);
-            drawRoad(x, z * -1, width, height);
+            drawRoad(x, -z, width, height);
+
+            //nodes.AddNode(width / 2 + 6, z);
+            //nodes.AddNode(width / 2 + 6, -z);
 
             double percent = 1 / amountRoads;
             double length = width;
             double startPosition = -35;
             double segment = length * percent;
 
-            Console.WriteLine(percent);
             for (int i = 0; i <= amountRoads; i++)
             {
                 drawRoad(startPosition + segment * i, 0, height, width / 2);
+                nodes.AddNode(startPosition + segment * i, z);
+                nodes.AddNode(startPosition + segment * i, -z);
+                for (int j = 1; j < 10; j++)
+                {
+                    nodes.AddNode(startPosition + segment * i, 20 - 40 / 10 * j);
+                }
             }
+            drawNodes();
             Console.WriteLine("Loading road...");
+        }
+
+        private void addConnections()
+        {
+            //nodes.AddConnection(source, destination);
         }
 
         private void drawRoad(double x, double z, double width, double height)
@@ -156,7 +164,16 @@ namespace Models
             Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
             road.Transform(width, height, 0);
             worldObjects.Add(road);
-            SendCommandToObservers(new UpdateModel3DCommand(road));
+            //drawNodes();
+            //SendCommandToObservers(new UpdateModel3DCommand(road));
+        }
+
+        private void drawNodes()
+        {
+            foreach (Nodes node in nodes.GetNodes)
+            {
+                CreateModel3D("node", node.GetX, 0, node.GetZ);
+            }
         }
     }
 }

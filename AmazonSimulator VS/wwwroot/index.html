@@ -162,7 +162,6 @@
                 if (cone != null) {
                     clearScene(cone);
                 }
-                console.log("TRYING TO DRAW CONE");
                 geometry = new THREE.ConeGeometry(radius, y, 32);
                 material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2 });
                 cone = new THREE.Mesh(geometry, material);
@@ -178,18 +177,6 @@
                 obj.geometry.dispose();
                 obj.material.dispose();
                 obj = null;
-            }
-
-            function loadRoad(x, y, z) {
-                // length
-                createRoad(82, 2, 5, 20);
-                createRoad(82, 2, 5, -20);
-
-                // width
-                createRoad(2, 40, -35, 0);
-                for (var i = 45; i >= -15; i = i - 10) { 
-                    createRoad(2, 40, i, 0);
-                }
             }
 
             function createRoad(width, height, x, z) {
@@ -244,9 +231,26 @@
                             var depth = parm.depth;
                             var width = parm.width;
                             var height = parm.height;
-                            
+
                             //createRoad(length, depth, x, y, z)
                             createRoad(width, height, parm.x, parm.z);
+                        }
+
+                        else if (command.parameters.type === "node")
+                        {
+                            var material = new THREE.LineBasicMaterial({
+                                color: 0x00ff00
+                            });
+
+                            var geometry = new THREE.Geometry();
+                            geometry.vertices.push(
+                                new THREE.Vector3(command.parameters.x, 10, command.parameters.z),
+                                new THREE.Vector3(command.parameters.x, 0, command.parameters.z),
+                                new THREE.Vector3(command.parameters.x, -10, command.parameters.z)
+                            );
+
+                            var line = new THREE.Line(geometry, material);
+                            scene.add(line);
                         }
 
                         // else if (command.parameters.type == "rack") {
@@ -256,9 +260,6 @@
 
                     var object = worldObjects[command.parameters.guid];
                     if (object != null) {
-                        if (command.parameters.type === "earth") {
-                            console.log(command.parameters.z);
-                        }
                         object.position.x = command.parameters.x;
                         object.position.y = command.parameters.y;
                         object.position.z = command.parameters.z;
