@@ -12,6 +12,7 @@ namespace Models
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Nodes nodes = new Nodes();
         private int c = 0;
+        private int cargo = 3; //Number of receiving racks
 
         public World()
         {
@@ -134,14 +135,18 @@ namespace Models
             }
         }
         
-        private bool loaded = false; 
+        private int loaded = 0;
+        private double x = 0; 
         private void receiveCargo(Spaceships spaceship)
         {
-            if (spaceship.checkCoordinates() && !loaded)
+            if (spaceship.checkCoordinates())
+                loaded++;
+
+            if (10 < loaded && loaded <= (cargo + 10)) 
             {
-                loaded = true;
-                Racks rack = CreateRack(spaceship.x, 2, spaceship.z);
+                Racks rack = CreateRack(spaceship.x + x, 2, spaceship.z);
                 Console.WriteLine("LOADING RACK");
+                x+=2.5; 
             }
         }
 

@@ -8,6 +8,7 @@ namespace Models
     public class Spaceships : Model3D, IUpdatable
     {
         private double ss_z = 125;
+        private double stop = 8; 
         private double count = 0;
         private double radius = 0;
         public Spaceships(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
@@ -27,7 +28,7 @@ namespace Models
                 radius = (radius >= 360) ? 0 : radius; // reset radius
                 
 
-                if (ss_z == 7 && count < 100 || ss_z == -7 && count < 100)
+                if (ss_z == stop && count < 100 || ss_z == -stop && count < 100)
                     count++;
 
                 else
@@ -47,7 +48,7 @@ namespace Models
 
         public bool checkCoordinates()
         {
-            if (ss_z == 7 || ss_z == -7)
+            if (ss_z == stop || ss_z == -stop)
             {
                 return true;
             }
