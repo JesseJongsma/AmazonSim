@@ -15,15 +15,10 @@ namespace Models
 
         public World()
         {
-
             drawRoads(5);
             CreateRobot(0, 0.05, 0);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
-            for (int i = 0; i < 4; i = i + 2)
-            {
-                Racks rack = CreateRack(0, 2, i);
-            }
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -40,9 +35,9 @@ namespace Models
             return ship;
         }
 
-        private Model3D CreateModel3D(double x, double y, double z)
+        private Model3D CreateModel3D(string type, double x, double y, double z)
         {
-            Model3D model = new Model3D("earth", x, y, z, 0, 0, 0);
+            Model3D model = new Model3D(type, x, y, z, 0, 0, 0);
             worldObjects.Add(model);
             return model;
         }
@@ -50,8 +45,9 @@ namespace Models
         private Racks CreateRack(double x, double y, double z)
         {
             Racks rack = new Racks("rack", x, y, z, -0.05, -1.42, 0);
+            Console.WriteLine("{0}, {1}, {2}", x, y, z);
             worldObjects.Add(rack);
-            return rack; 
+            return rack;
         }
 
         public IDisposable Subscribe(IObserver<Command> observer)
@@ -102,11 +98,12 @@ namespace Models
                         {
                             Spaceships spaceship = (Spaceships)u;
                             spaceship.moveSpaceship();
+                            receiveCargo(spaceship);
                         }
                         else if (u is Racks)
                         {
                             Racks rack = (Racks)u;
-                            rack.moveRack(rack);
+                            rack.moveRack();
                         }
 
                         else
@@ -114,7 +111,7 @@ namespace Models
                             Model3D earth = (Model3D)u;
                             moveEarth(earth);
                         }
-                       
+
 
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
@@ -134,6 +131,17 @@ namespace Models
                 model.Move(model.x, model.y, model.z);
                 radius = radius + 0.01;
                 radius = (radius >= 360) ? 0 : radius;
+            }
+        }
+        
+        private bool loaded = false; 
+        private void receiveCargo(Spaceships spaceship)
+        {
+            if (spaceship.checkCoordinates() && !loaded)
+            {
+                loaded = true;
+                Racks rack = CreateRack(spaceship.x, 2, spaceship.z);
+                Console.WriteLine("LOADING RACK");
             }
         }
 
@@ -162,34 +170,34 @@ namespace Models
                     nodes.AddNode(startPosition + segment * i, 20 - 40 / 10 * j);
                 }
             }
-            addConnections();
+            //addConnections();
             drawNodes();
             Console.WriteLine("Loading road...");
         }
 
-        private void addConnections()
-        {
-            foreach (Nodes node in nodes.GetNodes)
-            {
-                foreach (ConnectedNodes CheckNode in nodes.GetConnectedNodes)
-                {
-                    if (CheckNode.GetDestinations(node).GetX == node.GetX ^ CheckNode.GetDestinations(node).GetZ == node.GetZ)
-                    {
-                        //foreach (ConnectedNodes conn in CheckNode.GetConnectedNodes)
-                        //{
-                        //foreach (Nodes destination in conn.Destinations)
-                        //{
-                        if (CheckNode.GetConnectedNodes)
-                        {
-                            nodes.AddSource(node);
-                            nodes.AddConnection(node, CheckNode);
-                        }
-                        //}
-                        //}
-                    }
-                }
-            }
-        }
+        //private void addConnections()
+        //{
+        //    foreach (Nodes node in nodes.GetNodes)
+        //    {
+        //        foreach (ConnectedNodes CheckNode in nodes.GetConnectedNodes)
+        //        {
+        //            if (CheckNode.GetDestinations(node).GetX == node.GetX ^ CheckNode.GetDestinations(node).GetZ == node.GetZ)
+        //            {
+        //                //foreach (ConnectedNodes conn in CheckNode.GetConnectedNodes)
+        //                //{
+        //                //foreach (Nodes destination in conn.Destinations)
+        //                //{
+        //                if (CheckNode.GetConnectedNodes)
+        //                {
+        //                    nodes.AddSource(node);
+        //                    nodes.AddConnection(node, CheckNode);
+        //                }
+        //                //}
+        //                //}
+        //            }
+        //        }
+        //    }
+        //}
 
         private void drawRoad(double x, double z, double width, double height)
         {

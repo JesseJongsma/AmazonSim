@@ -7,14 +7,16 @@ namespace Models
 {
     public class Racks : Model3D, IUpdatable
     {
+        private double y; 
         public Racks(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Rack created");
+            this.y = y; 
         }
 
-        public void moveRack(Model3D model)
+        public void moveRack()
         {
-            model.Move(model.x, model.y, model.z);
+            Move(x, y, z);
         }
     }
 }
