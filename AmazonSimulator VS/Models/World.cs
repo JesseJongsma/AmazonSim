@@ -12,11 +12,12 @@ namespace Models
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Nodes nodes = new Nodes();
         private int c = 0;
+        private int cargo = 3; //Number of receiving racks
 
         public World()
         {
 
-            drawRoads(7); // Max 7 roads
+            drawRoads(2); // Max 7 roads
             CreateRobot(0, 0.05, 0);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
@@ -46,7 +47,6 @@ namespace Models
         private Racks CreateRack(double x, double y, double z)
         {
             Racks rack = new Racks("rack", x, y, z, -0.05, -1.42, 0);
-            Console.WriteLine("{0}, {1}, {2}", x, y, z);
             worldObjects.Add(rack);
             return rack;
         }
@@ -135,14 +135,18 @@ namespace Models
             }
         }
         
-        private bool loaded = false; 
+        private int loaded = 0;
+        private double x = 0; 
         private void receiveCargo(Spaceships spaceship)
         {
-            if (spaceship.checkCoordinates() && !loaded)
+            if (spaceship.checkCoordinates())
+                loaded++;
+
+            if (10 < loaded && loaded <= (cargo + 10)) 
             {
-                loaded = true;
-                Racks rack = CreateRack(spaceship.x, 2, spaceship.z);
+                Racks rack = CreateRack(spaceship.x + x, 2, spaceship.z);
                 Console.WriteLine("LOADING RACK");
+                x+=2.5; 
             }
         }
 
