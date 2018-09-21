@@ -9,7 +9,7 @@ namespace Models
     {
         private List<Nodes> NodesList = new List<Nodes>();
         private List<ConnectedNodes> ConnectedNodesList = new List<ConnectedNodes>();
-        private ConnectedNodes ConnectedNodes = new ConnectedNodes();
+        private ConnectedNodes _ConnectedNodes = new ConnectedNodes();
         private double _x;
         private double _z;
 
@@ -23,12 +23,25 @@ namespace Models
             return Node;
         }
 
+        public void AddSource(Nodes source)
+        {
+            ConnectedNodes connectedNodes = new ConnectedNodes();
+            connectedNodes.Source = source;
+            ConnectedNodesList.Add(connectedNodes);
+        }
+
         public void AddConnection(Nodes source, Nodes destination)
         {
             double differenceX = source.GetX - destination.GetX;
             double differenceZ = source.GetZ - destination.GetZ;
             double distance = Math.Sqrt(Math.Pow(differenceX, 2) + Math.Pow(differenceZ, 2));
-            ConnectedNodes.AddConnectedNode(source, destination, distance);
+            foreach (ConnectedNodes node in ConnectedNodesList)
+            {
+                if (node.Source == source)
+                {
+                    node.AddConnection(destination, distance);
+                }
+            }
         }
 
         public int length()
@@ -76,14 +89,28 @@ namespace Models
     public class ConnectedNodes
     {
         public Nodes Source { get; set; }
-        public Nodes Destination { get; set; }
+        public List<Nodes> Destinations = new List<Nodes>();
         public double Distance { get; set; }
 
-        public void AddConnectedNode(Nodes source, Nodes destination, double distance)
+        public void AddSource(Nodes source)
         {
             Source = source;
-            Destination = destination;
+        }
+
+        public void AddConnection(Nodes destination, double distance)
+        {
+            Destinations.Add(destination);
             Distance = distance;
+        }
+
+        public Nodes GetDestinations(Nodes searchNode)
+        {
+            foreach (Nodes node in Destinations)
+            {
+                if (node == searchNode)
+                    return node;
+            }
+            return null;
         }
     }
 }

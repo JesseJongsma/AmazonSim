@@ -162,13 +162,33 @@ namespace Models
                     nodes.AddNode(startPosition + segment * i, 20 - 40 / 10 * j);
                 }
             }
+            addConnections();
             drawNodes();
             Console.WriteLine("Loading road...");
         }
 
         private void addConnections()
         {
-            //nodes.AddConnection(source, destination);
+            foreach (Nodes node in nodes.GetNodes)
+            {
+                foreach (ConnectedNodes CheckNode in nodes.GetConnectedNodes)
+                {
+                    if (CheckNode.GetDestinations(node).GetX == node.GetX ^ CheckNode.GetDestinations(node).GetZ == node.GetZ)
+                    {
+                        //foreach (ConnectedNodes conn in CheckNode.GetConnectedNodes)
+                        //{
+                        //foreach (Nodes destination in conn.Destinations)
+                        //{
+                        if (CheckNode.GetConnectedNodes)
+                        {
+                            nodes.AddSource(node);
+                            nodes.AddConnection(node, CheckNode);
+                        }
+                        //}
+                        //}
+                    }
+                }
+            }
         }
 
         private void drawRoad(double x, double z, double width, double height)
@@ -176,8 +196,6 @@ namespace Models
             Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
             road.Transform(width, height, 0);
             worldObjects.Add(road);
-            //drawNodes();
-            //SendCommandToObservers(new UpdateModel3DCommand(road));
         }
 
         private void drawNodes()
@@ -185,12 +203,19 @@ namespace Models
             foreach (Nodes node in nodes.GetNodes)
             {
                 CreateModel3D("node", node.GetX, 0, node.GetZ);
+                foreach (ConnectedNodes connectedNodes in nodes.GetConnectedNodes)
+                {
+                    foreach (Nodes destination in connectedNodes.Destinations)
+                    {
+                        Model3D synapse = CreateModel3D("synapse", connectedNodes.Source.GetX, 0, connectedNodes.Source.GetZ);
+                        synapse.Transform(destination.GetX, 0, destination.GetZ);
+                        worldObjects.Add(synapse);
+                    }
+                }
             }
         }
     }
 }
-
-
 
 internal class Unsubscriber<Command> : IDisposable
 {
