@@ -63,7 +63,7 @@
                 plane.position.z = 0;
                 scene.add(plane);
 
-                loadRoad();
+                //loadRoad();
 
                 var light = new THREE.AmbientLight(0xffffff);
                 light.intensity = 1;
@@ -84,7 +84,6 @@
                 cameraControls.update();
                 renderer.render(scene, camera);
             }
-
 
             function loadSphereSkyBox() {
                 var sphereGeometry = new THREE.SphereGeometry(900, 32, 32);
@@ -153,7 +152,6 @@
                 if (cone != null) {
                     clearScene(cone);
                 }
-                console.log("TRYING TO DRAW CONE");
                 geometry = new THREE.ConeGeometry(radius, y, 32);
                 material = new THREE.MeshBasicMaterial({ color: 0x00ff00, transparent: true, opacity: 0.2 });
                 cone = new THREE.Mesh(geometry, material);
@@ -171,20 +169,8 @@
                 obj = null;
             }
 
-            function loadRoad() {
-                //In de length
-                createRoad(82, 2, 5, 20);
-                createRoad(82, 2, 5, -20);
-
-                //In de width
-                createRoad(2, 40, -35, 0);
-                for (var i = 45; i >= -15; i = i - 10) {
-                    createRoad(2, 40, i, 0);
-                }
-            }
-
-            function createRoad(length, depth, x, z) {
-                var geometry = new THREE.PlaneGeometry(length, depth, 32);
+            function createRoad(width, height, x, z) {
+                var geometry = new THREE.PlaneGeometry(width, height, 32);
                 var material = new THREE.MeshBasicMaterial({ color: 0x808080, side: THREE.DoubleSide });
                 var plane = new THREE.Mesh(geometry, material);
                 plane.rotation.x = Math.PI / 2.0;
@@ -239,6 +225,37 @@
                                 rack = false; 
                             });
                         }
+                        else if (command.parameters.type === "road") {
+                            console.log("LOADING A ROAD");
+                            var parm = command.parameters;
+                            var depth = parm.depth;
+                            var width = parm.width;
+                            var height = parm.height;
+
+                            //createRoad(length, depth, x, y, z)
+                            createRoad(width, height, parm.x, parm.z);
+                        }
+
+                        else if (command.parameters.type === "node")
+                        {
+                            var material = new THREE.LineBasicMaterial({
+                                color: 0x00ff00
+                            });
+
+                            var geometry = new THREE.Geometry();
+                            geometry.vertices.push(
+                                new THREE.Vector3(command.parameters.x, 10, command.parameters.z),
+                                new THREE.Vector3(command.parameters.x, 0, command.parameters.z),
+                                new THREE.Vector3(command.parameters.x, -10, command.parameters.z)
+                            );
+
+                            var line = new THREE.Line(geometry, material);
+                            scene.add(line);
+                        }
+
+                        // else if (command.parameters.type == "rack") {
+                        //console.log("TRYING TO LOAD THE Rack");
+                        //worldObjects[command.parameters.guid] = rackObject;
                     }
 
                     var object = worldObjects[command.parameters.guid];
@@ -265,6 +282,7 @@
             }
 
             init();
+            console.log(worldObjects);
             animate();
         }
     </script>
