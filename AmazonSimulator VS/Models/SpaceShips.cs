@@ -25,7 +25,6 @@ namespace Models
                 Rotate(rotationX, radius / 2, rotationZ);
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
-                Console.WriteLine("{0}, {1}", count, ss_z);
                 
 
                 if (ss_z == 7 && count < 100 || ss_z == -7 && count < 100)

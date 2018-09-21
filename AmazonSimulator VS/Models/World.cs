@@ -16,7 +16,7 @@ namespace Models
         public World()
         {
 
-            drawRoads(7); // Max 7 roads
+            drawRoads(6); // Max 6 roads
             CreateRobot(0, 0.05, 0);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
@@ -46,7 +46,6 @@ namespace Models
         private Racks CreateRack(double x, double y, double z)
         {
             Racks rack = new Racks("rack", x, y, z, -0.05, -1.42, 0);
-            Console.WriteLine("{0}, {1}, {2}", x, y, z);
             worldObjects.Add(rack);
             return rack;
         }
