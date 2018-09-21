@@ -23,25 +23,33 @@ namespace Models
             return Node;
         }
 
-        public void AddSource(Nodes source)
-        {
-            ConnectedNodes connectedNodes = new ConnectedNodes();
-            connectedNodes.Source = source;
-            ConnectedNodesList.Add(connectedNodes);
-        }
+        //public void AddSource(Nodes source)
+        //{
+        //    ConnectedNodes connectedNodes = new ConnectedNodes();
+        //    connectedNodes.Source = source;
+        //    ConnectedNodesList.Add(connectedNodes);
+        //}
 
         public void AddConnection(Nodes source, Nodes destination)
         {
+            // Calculate distance
             double differenceX = source.GetX - destination.GetX;
             double differenceZ = source.GetZ - destination.GetZ;
             double distance = Math.Sqrt(Math.Pow(differenceX, 2) + Math.Pow(differenceZ, 2));
+
+            ConnectedNodes newConnection = new ConnectedNodes();
+            newConnection.AddConnection(source, destination, distance);
+            ConnectedNodesList.Add(newConnection);
+        }
+
+        public Nodes GetConnection(Nodes searchNode)
+        {
             foreach (ConnectedNodes node in ConnectedNodesList)
             {
-                if (node.Source == source)
-                {
-                    node.AddConnection(destination, distance);
-                }
+                if (node.GetDestinations(searchNode) != null)
+                    return node.GetDestinations(searchNode);
             }
+            return null;
         }
 
         public int length()
@@ -86,19 +94,15 @@ namespace Models
         }
     }
 
-    public class ConnectedNodes
+    public class ConnectedNodes 
     {
         public Nodes Source { get; set; }
         public List<Nodes> Destinations = new List<Nodes>();
         public double Distance { get; set; }
 
-        public void AddSource(Nodes source)
+        public void AddConnection(Nodes source, Nodes destination, double distance)
         {
             Source = source;
-        }
-
-        public void AddConnection(Nodes destination, double distance)
-        {
             Destinations.Add(destination);
             Distance = distance;
         }
