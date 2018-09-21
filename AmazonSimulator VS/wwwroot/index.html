@@ -16,19 +16,21 @@
         var exampleSocket;
         var spaceShipObject;
         var loaded = false;
-        var loaded_humanRobot = false;
         var drawScene;
         var radius = 0, height = 0;
         var i = 100;
         var cone = null;
         var earth = null;
+        var rack = false; 
         var DEBUG = true;
+       
 
         window.onload = function () {
             var camera, scene, renderer;
             var cameraControls;
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
+            var rackGroup = new THREE.Group();
             drawScene = new DrawScene(scene);
             var rackObject;
             var radius = 0;
@@ -69,7 +71,6 @@
                 scene.add(light);
 
                 loadStorage();
-                loadRack();
             }
 
             function onWindowResize() {
@@ -136,18 +137,6 @@
                     });
             }
 
-            function loadRack() {
-                var loader = new THREE.ObjectLoader();
-                loader.load("/Objects/rack.json",
-                    function (rack) {
-                        rackObject = rack;
-                        rack.position.x = 10;
-                        rack.position.y = 0.05;
-                        rack.position.z = 10;
-                        scene.add(rack);
-                    }
-                );
-            }
 
             function drawCone(x, y, z, rad = null) {
                 var geometry, material;
@@ -186,13 +175,10 @@
                 //In de length
                 createRoad(82, 2, 5, 20);
                 createRoad(82, 2, 5, -20);
-                //for (var i = 10; i >= -10; i = i - 10){
-                //    createRoad(64, 2, 13, i);
-                //}
 
                 //In de width
                 createRoad(2, 40, -35, 0);
-                for (var i = 45; i >= -20; i = i - 10) { 
+                for (var i = 45; i >= -15; i = i - 10) {
                     createRoad(2, 40, i, 0);
                 }
             }
@@ -207,7 +193,7 @@
                 plane.position.z = z;
                 scene.add(plane);
             }
-
+            
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data);
@@ -243,17 +229,20 @@
                                 scene.add(obj);
                             });
                         }
-
-                        // else if (command.parameters.type == "rack") {
-                        //console.log("TRYING TO LOAD THE Rack");
-                        //worldObjects[command.parameters.guid] = rackObject;
+                        else if (command.parameters.type === "rack" && rack == false) {
+                            console.log("TRYING TO LOAD THE RACK");
+                            rack = true; 
+                            loadOBJModel("/Objects/", "Rack.obj", "/Objects/", "Rack.mtl", (obj) => {
+                                obj.scale.set(3, 3, 3);
+                                worldObjects[command.parameters.guid] = obj;
+                                scene.add(obj);
+                                rack = false; 
+                            });
+                        }
                     }
 
                     var object = worldObjects[command.parameters.guid];
                     if (object != null) {
-                        if (command.parameters.type === "earth") {
-                            console.log(command.parameters.z);
-                        }
                         object.position.x = command.parameters.x;
                         object.position.y = command.parameters.y;
                         object.position.z = command.parameters.z;

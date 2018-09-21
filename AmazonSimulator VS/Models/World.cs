@@ -10,14 +10,17 @@ namespace Models
     {
         private List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
-        private int c = 0;
 
         public World()
         {
-            Robots robot = CreateRobot(4.6, 0, 13);
+            
+            Robots robot = CreateRobot(4.6, 0, 0);
             Spaceships ship = CreateSpaceShip(-45, 25, 0);
-            Model3D earth = CreateModel3D("earth", 500, 10, 500);
-
+            Model3D earth = CreateModel3D(500, 10, 500);
+            for (int i = 0; i < 4; i = i + 2)
+            {
+                Racks rack = CreateRack(0, 2, i);
+            }
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -34,20 +37,19 @@ namespace Models
             return ship;
         }
 
-        private Model3D CreateModel3D(string type, double x, double y, double z)
+        private Model3D CreateModel3D(double x, double y, double z)
         {
-            Model3D model = new Model3D(type, x, y, z, 0, 0, 0);
+            Model3D model = new Model3D("earth", x, y, z, 0, 0, 0);
             worldObjects.Add(model);
             return model;
         }
 
-        //private Model3D CreateRack(double x, double y, double z)
-        //{
-        //    Model3D Rack = new Model3D("rack", x, y, z, 0, 0, 0);
-        //    worldObjects.Add(Rack);
-        //    return Rack;
-        //}
-
+        private Racks CreateRack(double x, double y, double z)
+        {
+            Racks rack = new Racks("rack", x, y, z, -0.05, -1.42, 0);
+            worldObjects.Add(rack);
+            return rack; 
+        }
 
         public IDisposable Subscribe(IObserver<Command> observer)
         {
@@ -92,18 +94,26 @@ namespace Models
                         if (u is Robots)
                         {
                             Robots robot = (Robots)u;
-                            robot.moveRobot(u);
+                            robot.moveRobot(robot);
                         }
                         else if (u is Spaceships)
                         {
                             Spaceships spaceship = (Spaceships)u;
-                            spaceship.moveSpaceship(u);
+                            spaceship.moveSpaceship(spaceship);
                         }
-                        else if (u is Model3D)
+                        else if (u is Racks)
+                        {
+                            Racks rack = (Racks)u;
+                            rack.moveRack(rack);
+                        }
+
+                        else
                         {
                             Model3D earth = (Model3D)u;
                             moveEarth(earth);
                         }
+                       
+
                         SendCommandToObservers(new UpdateModel3DCommand(u));
                     }
                 }
@@ -124,7 +134,6 @@ namespace Models
                 radius = (radius >= 360) ? 0 : radius;
             }
         }
-
     }
 
 
