@@ -261,8 +261,8 @@
                             var geometrySyn = new THREE.Geometry();
                             geometrySyn.vertices.push(
                                 new THREE.Vector3(command.parameters.x, 10, command.parameters.z),
+                                new THREE.Vector3(command.parameters.width, 15, command.parameters.depth),
                                 new THREE.Vector3(command.parameters.width, 10, command.parameters.depth)
-                                //new THREE.Vector3(command.parameters.x, -10, command.parameters.z)
                             );
                             
                             var lineSyn = new THREE.Line(geometrySyn, materialSyn);

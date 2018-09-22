@@ -32,11 +32,8 @@ namespace Models
 
         public void AddConnection(Nodes source, Nodes destination)
         {
-            // Calculate distance
-            double distance = CalculateDistance(source, destination);
-
             ConnectedNodes newConnection = new ConnectedNodes();
-            newConnection.AddConnection(source, destination, distance);
+            newConnection.AddConnection(source, destination);
             ConnectedNodesList.Add(newConnection);
         }
 
@@ -105,13 +102,11 @@ namespace Models
     {
         public Nodes Source { get; set; }
         public List<Nodes> Destinations = new List<Nodes>();
-        public double Distance { get; set; }
 
-        public void AddConnection(Nodes source, Nodes destination, double distance)
+        public void AddConnection(Nodes source, Nodes destination)
         {
             Source = source;
             Destinations.Add(destination);
-            Distance = distance;
         }
     }
 }
