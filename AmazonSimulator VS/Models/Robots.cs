@@ -22,8 +22,7 @@ namespace Models
             Console.WriteLine("Robot created");
             Grid = grid;
             UnVisited = Grid.GetNodes;
-            GetPaths(Grid.GetNodes[32], Grid.GetNodes[0]);
-            GetPaths(Grid.GetNodes[32], Grid.GetNodes[0]);
+            GetPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
             Move(Start.x, 0.05, Start.z);
         }
 
