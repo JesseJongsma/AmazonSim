@@ -1,84 +1,179 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Models
 {
     public class Robots : Model3D, IUpdatable
     {
-        private int c = 0;
-        private List<Nodes> Visited = new List<Nodes>();
-        private List<Nodes> UnVisited = new List<Nodes>();
-        private Nodes Start;
-        private Nodes Destination;
-        private double Speed = 0.1;
-        public Nodes _Nodes;
+        private List<Node> Visited = new List<Node>();
+        private List<Node> UnVisited = new List<Node>();
+        private List<Node> NodesStack = new List<Node>();
+        private Node Start;
+        private Node Destination;
+        private Grid Grid;
+        private const double Speed = 0.2; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
+        bool done = false;
 
-        public Robots(Nodes nodes, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
+        public Robots(Grid grid, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
-            _Nodes = nodes;
-            UnVisited = _Nodes.GetNodes;
-            //Move(UnVisited.First().GetX, 0.05, UnVisited.First().GetZ);
-            //transferNode(UnVisited.First());
+            Grid = grid;
+            UnVisited = Grid.GetNodes;
+            GetPaths(Grid.GetNodes[32], Grid.GetNodes[0]);
+            GetPaths(Grid.GetNodes[32], Grid.GetNodes[0]);
+            Move(Start.x, 0.05, Start.z);
         }
 
-        private double count = 0;
-        private bool first = false;
         public void moveRobot()
         {
             GetShortestPath();
-            if (!first)
-            {
-                Move(Start.GetX, 0.05, Start.GetZ);
-                first = true;
-            }
+        }
 
-            if (count > 1)
+        private int index = 0;
+        List<Node> Road = new List<Node>();
+        public void GetShortestPath()
+        {
+            if (Visited.Last() == Destination || Road.Count != 0)
             {
-                Move(x, 0.05, z);
-                count = 0;
+                if (index < Road.Count || Road.Count == 0 && index == 0)
+                {
+                    while (!done)
+                    {
+                        if (Destination != Start)
+                        {
+                            Road.Insert(0, Destination);
+                            Destination = Destination.previousNode;
+                        }
+                        else
+                        {
+                            done = true;
+                        }
+                    }
+
+                    SortList(Road);
+                    double nodeX = Road[index].x;
+                    double nodeZ = Road[index].z;
+
+                    double countX = x;
+                    countX = countInRange(countX, nodeX, Speed);
+
+                    double countZ = z;
+                    countZ = countInRange(countZ, nodeZ, Speed);
+
+                    Move(countX, 0.05, countZ);
+                    Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}", x, y, z);
+
+                    if (x == nodeX && z == nodeZ)
+                    {
+                        
+                        index++;
+                    }
+                }
             }
             else
             {
-                count = count + Speed;
-            }
-        }
-
-        public void GetShortestPath()
-        {
-            GetPaths(new Nodes(), new Nodes());
-            UnVisited = _Nodes.GetNodes;
-            Visited.Add(Start);
-
-            foreach (ConnectedNodes unVisited in _Nodes.GetConnectedNodes)
-            {
-                foreach (Nodes destination in unVisited.Destinations)
+                foreach (Node node in Grid.GetDestinationsBySource(Visited.Last()))
                 {
-                    Console.WriteLine(_Nodes.CalculateDistance(Visited.Last(), destination));
+                    if (!Visited.Contains(node))
+                        NodeStackAdd(node);
                 }
+
+                if (NodesStack.Count() > 0)
+                {
+                    Visited.Add(NodesStack.First());
+                    NodesStack.Remove(NodesStack.First());
+                }
+
+                SortList(NodesStack);
+                //SortList(Visited);
+
+                GetShortestPath();
             }
         }
 
-        private void GetPaths(Nodes start, Nodes destination)
+
+
+        private List<Node> NodeStackAdd(Node newNode)
         {
-            Start = _Nodes.GetNodes[1];
-            Destination = _Nodes.GetNodes[10];
+            bool update = true;
+            if (NodesStack.Count != 0)
+            {
+                // Overwrite the node if it already exists
+                for (int i = 0; i < NodesStack.Count; i++)
+                {
+                    if (NodesStack[i].x == newNode.x && NodesStack[i].z == newNode.z && NodesStack[i].distance > newNode.distance)
+                    {
+                        NodesStack[i] = newNode;
+                        return NodesStack;
+                    }
+                    else if (NodesStack[i].x == newNode.x && NodesStack[i].z == newNode.z && NodesStack[i].distance < newNode.distance)
+                    {
+                        update = false;
+                    }
+                }
+                if (!update)
+                {
+                    return NodesStack;
+                }
+
+                // Add a new node
+                newNode.previousNode = Visited.Last();
+                newNode.distance = Grid.CalculateDistance(newNode, newNode.previousNode) + newNode.previousNode.distance;
+                NodesStack.Add(newNode);
+            }
+            else
+            {
+                newNode.previousNode = Visited.Last();
+                newNode.distance = Grid.CalculateDistance(newNode, Visited.Last());
+                NodesStack.Add(newNode);
+            }
+            return NodesStack;
         }
 
-        private void transferNode(Nodes node)
+        private void SortList(List<Node> list)
         {
-            if (Visited.Contains(node))
+            bool change = false;
+            do
             {
-                UnVisited.Add(node);
-                Visited.Remove(node);
-            }
-            else if (UnVisited.Contains(node))
+                change = false;
+                for (int i = 0; i < list.Count - 1; i++)
+                {
+                    if (list[i].distance > list[i + 1].distance)
+                    {
+                        Node temp;
+                        temp = list[i];
+                        list[i] = list[i + 1];
+                        list[i + 1] = temp;
+                        change = true;
+                    }
+                }
+            } while (change);
+        }
+
+        private double countInRange(double start, double end, double step)
+        {
+            start = Math.Round(start, 1);
+            end = Math.Round(end, 1);
+            step = Math.Round(step, 1);
+
+            if (end < start)
+                step = -step;
+
+            if (start != end)
             {
-                Visited.Add(node);
-                UnVisited.Remove(node);
+                start += step;
             }
+            return Math.Round(start, 1);
+        }
+
+        private void GetPaths(Node start, Node destination)
+        {
+            Start = start;
+            Destination = destination;
+            Visited.Add(start);
         }
     }
 }
