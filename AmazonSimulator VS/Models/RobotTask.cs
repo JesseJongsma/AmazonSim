@@ -15,8 +15,8 @@ namespace Models
         private bool startupComplete = false;
         private bool complete = false;
 
-        private Nodes[] path; 
-        public RobotMove(Nodes[] path)
+        private Node[] path; 
+        public RobotMove(Node[] path)
         {
             this.path = path;
         }
@@ -37,8 +37,8 @@ namespace Models
         private bool startupComplete = false;
         private bool complete = false;
 
-        private Nodes[] path;
-        public RobotGetRack(Nodes[] path)
+        private Node[] path;
+        public RobotGetRack(Node[] path)
         {
             this.path = path;
         }
