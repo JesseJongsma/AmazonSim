@@ -72,8 +72,6 @@ namespace Models
     {
         public double x;
         public double z;
-        public Node previousNode = null;
-        public double distance = 0;
     }
 
     public class ConnectedNodes 
