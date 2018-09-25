@@ -16,8 +16,7 @@ namespace Models
 
         public World()
         {
-
-            drawRoads(6); // Max 6 roads
+            drawRoads(2); // Max 7 roads
             CreateRobot(0, 0.05, 0);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
@@ -134,19 +133,19 @@ namespace Models
                 radius = (radius >= 360) ? 0 : radius;
             }
         }
-
+        
         private int loaded = 0;
-        private double x = 0;
+        private double x = 0; 
         private void receiveCargo(Spaceships spaceship)
         {
             if (spaceship.checkCoordinates())
                 loaded++;
 
-            if (10 < loaded && loaded <= (cargo + 10))
+            if (10 < loaded && loaded <= (cargo + 10)) 
             {
                 Racks rack = CreateRack(spaceship.x + x, 2, spaceship.z);
                 Console.WriteLine("LOADING RACK");
-                x += 2.5;
+                x+=2.5; 
             }
         }
 
@@ -172,91 +171,46 @@ namespace Models
             for (int i = 0; i <= amountRoads; i++)
             {
                 drawRoad(startPosition + segment * i, 0, height, width / 2);
-                //Nodes destination = nodes.AddNode(startPosition + segment * i, z);
-                //Nodes source = nodes.AddNode(startPosition + segment * i, -z);
+                Nodes destination = nodes.AddNode(startPosition + segment * i, z);
+                Nodes source = nodes.AddNode(startPosition + segment * i, -z);
 
-                //CornerNodesDES.Add(destination);
-                //CornerNodesSRC.Add(source);
+                CornerNodesDES.Add(destination);
+                CornerNodesSRC.Add(source);
 
-                for (int j = 0; j <= 10; j++)
+                for (int j = 1; j < 10; j++)
                 {
                     Nodes rackNode = nodes.AddNode(startPosition + segment * i, 20 - 40 / 10 * j);
                     RackNodes.Add(rackNode);
                 }
             }
-
+            
             drawNodes();
-            //addConnections(CornerNodesSRC, CornerNodesDES, RackNodes);
-            addConnections();
+            addConnections(CornerNodesSRC, CornerNodesDES, RackNodes);
             Console.WriteLine("Loading road...");
         }
 
-        //private void addConnections(List<Nodes> cornerNodesSRC, List<Nodes> cornerNodesDES, List<Nodes> rackNodes)
-        //{
-        //    for (int i = 0; i < cornerNodesSRC.Count; i++)
-        //    {
-        //        for (int j = 0; j < cornerNodesDES.Count; j++)
-        //        {
-        //            if (i != 0 && j != 0)
-        //            {
-        //                // Vertical lines
-        //                nodes.AddConnection(cornerNodesSRC[i], cornerNodesSRC[i - 1]); // Right side
-        //                nodes.AddConnection(cornerNodesDES[j], cornerNodesDES[j - 1]); // Left side
-        //            }
-        //            // Connect vertical lines with horizontal lines
-        //            nodes.AddConnection(cornerNodesSRC[i], rackNodes[i * 9 + 8]); // Right side
-        //            nodes.AddConnection(cornerNodesDES[j], rackNodes[j * 9]); // left side
-        //        }
-        //    }
-
-        //    for (int r = 0; r < rackNodes.Count; r++)
-        //    {
-        //        if (r != 0 && r % 9 != 0)
-        //            nodes.AddConnection(rackNodes[r - 1], rackNodes[r]);
-        //    }
-
-        //    foreach (ConnectedNodes connectedNodes in nodes.GetConnectedNodes)
-        //    {
-        //        foreach (Nodes destination in connectedNodes.Destinations)
-        //        {
-        //            Model3D synapse = CreateModel3D("synapse", connectedNodes.Source.GetX, 0, connectedNodes.Source.GetZ);
-        //            synapse.Transform(destination.GetX, 0, destination.GetZ);
-        //            worldObjects.Add(synapse);
-        //        }
-        //    }
-        //}
-
-        public void addConnections()
+        private void addConnections(List<Nodes> cornerNodesSRC, List<Nodes> cornerNodesDES, List<Nodes> rackNodes)
         {
-            for (int i = nodes.GetNodes.Count - 1; i >= 0; i--)
+            for (int i = 0; i < cornerNodesSRC.Count; i++)
             {
-                if (i % 11 != 0)
-                    nodes.AddConnection(nodes.GetNodes[i], nodes.GetNodes[i - 1]);
-
-                //if (i == 0)
-                //{
-                //    nodes.AddConnection(nodes.GetNodes[0], nodes.GetNodes[11]);
-                //}
-
-                if (nodes.GetNodes[i].GetZ == 20 || nodes.GetNodes[i].GetZ == -20)
+                for (int j = 0; j < cornerNodesDES.Count; j++)
                 {
-                    if (i >= 11)
+                    if (i != 0 && j != 0)
                     {
-                        nodes.AddConnection(nodes.GetNodes[i], nodes.GetNodes[i - 11]);
+                        // Vertical lines
+                        nodes.AddConnection(cornerNodesSRC[i], cornerNodesSRC[i - 1]); // Right side
+                        nodes.AddConnection(cornerNodesDES[j], cornerNodesDES[j - 1]); // Left side
                     }
-
-                    if (i < nodes.GetNodes.Count - 11)
-                    {
-                        nodes.AddConnection(nodes.GetNodes[i], nodes.GetNodes[i + 11]);
-                    }
+                    // Connect vertical lines with horizontal lines
+                    nodes.AddConnection(cornerNodesSRC[i], rackNodes[i * 9 + 8]); // Right side
+                    nodes.AddConnection(cornerNodesDES[j], rackNodes[j * 9]); // left side
                 }
-
             }
 
-            for (int i = 1; i < nodes.GetNodes.Count; i++)
+            for (int r = 0; r < rackNodes.Count; r++)
             {
-                if (i % 11 != 0 || i == 0)
-                    nodes.AddConnection(nodes.GetNodes[i -1], nodes.GetNodes[i]);
+                if (r != 0 && r % 9 != 0)
+                    nodes.AddConnection(rackNodes[r - 1], rackNodes[r]);
             }
 
             foreach (ConnectedNodes connectedNodes in nodes.GetConnectedNodes)
@@ -282,7 +236,7 @@ namespace Models
             foreach (Nodes node in nodes.GetNodes)
             {
                 CreateModel3D("node", node.GetX, 0, node.GetZ);
-
+                
             }
         }
     }
