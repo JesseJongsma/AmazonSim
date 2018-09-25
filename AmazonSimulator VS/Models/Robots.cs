@@ -68,23 +68,23 @@ namespace Models
             Destination = _Nodes.GetNodes[10];
         }
 
-        public override bool Update(int tick)
-        {
-            if (tasks != null)
-            {
-                if (tasks.First().TaskComplete(this))
-                {
-                    tasks.RemoveAt(0);
-                    if (tasks.Count == 0)
-                    {
-                        tasks = null;
-                    }
-                    tasks.First().StartTask(this);
-                }
-                return true;
-            }
-            else
-                return false;
-        }
+        //public override bool Update(int tick)
+        //{
+        //    if (tasks != null)
+        //    {
+        //        if (tasks.First().TaskComplete(this))
+        //        {
+        //            tasks.RemoveAt(0);
+        //            if (tasks.Count == 0)
+        //            {
+        //                tasks = null;
+        //            }
+        //            tasks.First().StartTask(this);
+        //        }
+        //        return true;
+        //    }
+        //    else
+        //        return false;
+        //}
     }
 }
