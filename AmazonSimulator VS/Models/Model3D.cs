@@ -17,9 +17,9 @@ namespace Models {
 
         public string type { get; }
         public Guid guid { get; }
-        public double x { get { return _x; } }
-        public double y { get { return _y; } }
-        public double z { get { return _z; } }
+        public double x { get { return _x; } set { _x = value; } }
+        public double y { get { return _y; } set { _y = value; } }
+        public double z { get { return _z; } set { _z = value; } }
         public double rotationX { get { return _rX; } }
         public double rotationY { get { return _rY; } }
         public double rotationZ { get { return _rZ; } }
