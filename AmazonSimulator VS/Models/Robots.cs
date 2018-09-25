@@ -8,6 +8,7 @@ namespace Models
     public class Robots : Model3D, IUpdatable
     {
         private int c = 0;
+        //private List<IRobotTask> tasks = new List<IRobotTask>(); 
         private List<Nodes> Visited = new List<Nodes>();
         private List<Nodes> UnVisited = new List<Nodes>();
         private Nodes Start;
@@ -67,18 +68,23 @@ namespace Models
             Destination = _Nodes.GetNodes[10];
         }
 
-        private void transferNode(Nodes node)
-        {
-            if (Visited.Contains(node))
-            {
-                UnVisited.Add(node);
-                Visited.Remove(node);
-            }
-            else if (UnVisited.Contains(node))
-            {
-                Visited.Add(node);
-                UnVisited.Remove(node);
-            }
-        }
+        //public override bool Update(int tick)
+        //{
+        //    if (tasks != null)
+        //    {
+        //        if (tasks.First().TaskComplete(this))
+        //        {
+        //            tasks.RemoveAt(0);
+        //            if (tasks.Count == 0)
+        //            {
+        //                tasks = null;
+        //            }
+        //            tasks.First().StartTask(this);
+        //        }
+        //        return true;
+        //    }
+        //    else
+        //        return false; 
+        //}
     }
 }

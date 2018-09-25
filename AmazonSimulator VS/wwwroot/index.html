@@ -22,7 +22,8 @@
         var cone = null;
         var earth = null;
         var rack = false;
-        var DEBUG = true;
+        var DEBUG = false;
+        var load = false; 
 
 
         window.onload = function () {
@@ -42,11 +43,15 @@
                 scene = new THREE.Scene();
                 if (!DEBUG) {
                     //The sphere sky box is drawn
-                    scene.add(drawScene.drawSphereSkyBox(900, 32, 32, "/SkyBox/galaxy.png"));
+                    scene.add(drawScene.drawSphere(900, 32, 32, 0, 0, 0, "/SkyBox/galaxy.png", true));
                 }
 
                 //The light is drawn
-                scene.add(drawScene.drawLight(0xffffff));
+                scene.add(drawScene.drawLight(-20, 200, 500, 1, 0, 0xffffff, "poitLight"));
+                scene.add(drawScene.drawLight(0, 10, 0, 1, 200, 0xffffff, "poitLight"));
+
+                //The sun is drawn
+                scene.add(drawScene.drawSphere(5, 32, 32, -20, 200, 500));
 
                 //The plane is drawn
                 scene.add(drawScene.drawPlane(101, 50, 0, 0, 0, 0xffffff));

@@ -4,16 +4,20 @@
         this.scene = scene;
     }
 
-    drawSphereSkyBox(x, y, z, pathPicture) {
+    drawSphere(x, y, z, posx, posy, posz, pathPicture, boolSkybox) {
         var sphereGeometry = new THREE.SphereGeometry(x, y, z);
-        var sphereMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(pathPicture), side: THREE.DoubleSide });
-        var sphereSkyBox = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        return sphereSkyBox;
+        if (boolSkybox == true)
+            var sphereMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load(pathPicture), side: THREE.DoubleSide });
+        else
+            var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+        var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        sphere.position.set(posx, posy, posz);
+        return sphere;
     }
 
     drawPlane(width, height, x, y, z, setColor) {
         var geometry = new THREE.PlaneGeometry(width, height, 32);
-        var material = new THREE.MeshBasicMaterial({ color: setColor, side: THREE.DoubleSide });
+        var material = new THREE.MeshLambertMaterial({ color: setColor, side: THREE.DoubleSide });
         var plane = new THREE.Mesh(geometry, material);
         plane.rotation.x = Math.PI / 2.0;
         plane.position.set(x, y, z);
@@ -23,12 +27,12 @@
     drawRobot(x, y, z) {
         var geometry = new THREE.BoxGeometry(x, y, z);
         var cubeMaterials = [
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
-            new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load("Textures/robot_front.png"), side: THREE.DoubleSide }) //BACK
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_side.png"), side: THREE.DoubleSide }), //LEFT
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_side.png"), side: THREE.DoubleSide }), //RIGHT
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_top.png"), side: THREE.DoubleSide }), //TOP
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_bottom.png"), side: THREE.DoubleSide }), //BOTTOM
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_front.png"), side: THREE.DoubleSide }), //FRONT
+            new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load("Textures/robot_front.png"), side: THREE.DoubleSide }) //BACK
         ];
         var material = new THREE.MeshFaceMaterial(cubeMaterials);
         var robot = new THREE.Mesh(geometry, material);
@@ -38,15 +42,19 @@
         return group;
     }
 
-    drawLight(color) {
-        var light = new THREE.AmbientLight(color);
-        light.intensity = 1;
-        return light;
+    drawLight(x, y, z, intensity, distance, setColor, light) {
+        switch (light) {
+            case "poitLight":
+                var light = new THREE.PointLight(setColor, intensity, distance);
+                light.position.set(x, y, z);
+                return light;
+                break;
+        }
     }
 
     drawWall(witdh, height, depth, x, y, z, giveColor) {
         var geometry = new THREE.BoxGeometry(witdh, height, depth);
-        var material = new THREE.MeshBasicMaterial({ color: giveColor });
+        var material = new THREE.MeshLambertMaterial({ color: giveColor });
         var storage = new THREE.Mesh(geometry, material);
         storage.position.set(x, y, z);
         return storage;
@@ -69,7 +77,7 @@
 
     drawCone(x, y, z, radius, setColor) {
         var geometry = new THREE.ConeGeometry(radius, y, 32);
-        var material = new THREE.MeshBasicMaterial({ color: setColor, transparent: true, opacity: 0.2 });
+        var material = new THREE.MeshLambertMaterial({ color: setColor, transparent: true, opacity: 0.2 });
         cone = new THREE.Mesh(geometry, material);
         cone.position.x = x;
         cone.position.y = y / 2;
