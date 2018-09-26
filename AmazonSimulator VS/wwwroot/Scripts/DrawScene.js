@@ -44,11 +44,22 @@
 
     drawLight(x, y, z, intensity, distance, setColor, light) {
         switch (light) {
-            case "poitLight":
+            case "pointLight":
                 var light = new THREE.PointLight(setColor, intensity, distance);
+                this.drawLensflare(light);
                 light.position.set(x, y, z);
                 return light;
                 break;
+        }
+    }
+
+    drawLensflare(light) {
+        if (light.distance < 100) {
+            var textureLoader = new THREE.TextureLoader();
+            var textureFlare = textureLoader.load("Textures/lensflare.png");
+            var lensflare = new THREE.Lensflare();
+            lensflare.addElement(new THREE.LensflareElement(textureFlare, 512, 0));
+            light.add(lensflare);
         }
     }
 
