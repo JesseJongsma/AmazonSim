@@ -13,42 +13,59 @@ namespace Models
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
         private List<Node> Path = new List<Node>();
-     
-        //private List<IRobotTask> tasks = new List<IRobotTask>(); 
+        private List<IRobotTask> tasks = new List<IRobotTask>(); 
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
+        private IRobotTask Tasks; 
         private const double Speed = 0.2; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
         bool done = false;
+        private int index = 0;
 
         public Robots(Grid grid, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
             Grid = grid;
             UnVisited = Grid.GetNodes;
-            GetPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
+            GetPaths(Grid.GetNodes[18], Grid.GetNodes[32]);
             Move(Start.x, 0.05, Start.z);
+
         }
+
+        public void addTask(int start, int end)
+        {
+            tasks.Add(new RobotMove(Path));
+        }
+
+        //public override bool Update(int tick)
+        //{
+        //    if (tasks != null)
+        //    {
+        //        if (tasks.First().TaskComplete(this))
+        //        {
+        //            tasks.RemoveAt(0);
+        //            if (tasks.Count == 0)
+        //            {
+        //                tasks = null;
+        //            }
+        //            tasks.First().StartTask(this);
+        //        }
+        //        return true;
+        //    }
+        //    else
+        //        return false;
+        //}
 
         public void moveRobot()
         {
             GetShortestPath();
         }
 
-        private int index = 0;
+        
         private Road path;
         public void GetShortestPath()
         {
-            //foreach (Road road in RoadStack)
-            //{
-            //    if (road.Node == Destination)
-            //    {
-            //        DestinationFound = true;
-            //        break;
-            //    }
-            //}
-
             if (Visited.Last() != Destination)
             {
                 foreach (Node node in Grid.GetDestinationsBySource(Visited.Last()))
@@ -104,7 +121,7 @@ namespace Models
                 countZ = countInRange(countZ, nodeZ, Speed);
 
                 Move(countX, 0.05, countZ);
-                Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}", x, y, z);
+                Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}, Path = {3}, {4}", x, y, z, Path[index].x, Path[index].z);
 
                 if ((x == nodeX && z == nodeZ) && Destination != Path[index])
                 {
@@ -200,7 +217,7 @@ namespace Models
             return Math.Round(start, 1);
         }
 
-        private void GetPaths(Node start, Node destination)
+        public void GetPaths(Node start, Node destination)
         {
             Start = start;
             Destination = destination;
@@ -245,24 +262,5 @@ namespace Models
         {
             PreviousNode = road;
         }
-        
-        //public override bool Update(int tick)
-        //{
-        //    if (tasks != null)
-        //    {
-        //        if (tasks.First().TaskComplete(this))
-        //        {
-        //            tasks.RemoveAt(0);
-        //            if (tasks.Count == 0)
-        //            {
-        //                tasks = null;
-        //            }
-        //            tasks.First().StartTask(this);
-        //        }
-        //        return true;
-        //    }
-        //    else
-        //        return false;
-        //}
     }
 }

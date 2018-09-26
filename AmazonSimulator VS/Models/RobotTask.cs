@@ -14,43 +14,21 @@ namespace Models
     {
         private bool startupComplete = false;
         private bool complete = false;
-
-        private Nodes[] path; 
-        public RobotMove(Nodes[] path)
+        private List<Node> path;
+        
+        public RobotMove(List<Node> path)
         {
             this.path = path;
         }
 
         public void StartTask(Robots r)
         {
-
+            r.moveRobot();
         }
 
         public bool TaskComplete(Robots r)
         {
-            return true; 
-        }
-    }
-
-    public class RobotGetRack : IRobotTask
-    {
-        private bool startupComplete = false;
-        private bool complete = false;
-
-        private Nodes[] path;
-        public RobotGetRack(Nodes[] path)
-        {
-            this.path = path;
-        }
-
-        public void StartTask(Robots r)
-        {
-            
-        }
-
-        public bool TaskComplete(Robots r)
-        {
-            return true; 
+            return true;
         }
     }
 }

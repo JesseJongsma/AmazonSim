@@ -102,7 +102,7 @@ namespace Models
                         else if (u is Racks)
                         {
                             Racks rack = (Racks)u;
-                            rack.moveRack();
+                            //rack.moveRack();
                         }
 
                         else
