@@ -8,7 +8,7 @@ namespace Models
 {
     public class World : IObservable<Command>, IUpdatable
     {
-        private List<Model3D> worldObjects = new List<Model3D>();
+        public List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
         private int cargo = 3; //Number of receiving racks
@@ -23,7 +23,7 @@ namespace Models
 
         private Robots CreateRobot(double x, double y, double z)
         {
-            Robots robot = new Robots(grid, "robot", x, y, z, 0, 0, 0);
+            Robots robot = new Robots(this, "robot", x, y, z, 0, 0, 0);
             worldObjects.Add(robot);
             addTask(robot, grid);
             return robot;

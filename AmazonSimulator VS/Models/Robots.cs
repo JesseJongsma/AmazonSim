@@ -12,28 +12,34 @@ namespace Models
         private List<Node> UnVisited = new List<Node>();
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
-        private List<Node> Path = new List<Node>();
-        public List<RobotMove> tasks = new List<RobotMove>();
+        //private List<Node> Path = new List<Node>();
+        private List<IRobotTask> tasks = new List<IRobotTask>();
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
+        private IRobotTask Tasks;
         private const double Speed = 0.2; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
         bool done = false;
-        private int index = 0;
 
-        public Robots(Grid grid, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
+        public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
-            Grid = grid;
-            UnVisited = Grid.GetNodes;
-            Move(-35, 0.05, 20);
-            GetPaths(grid.GetNodes[0], grid.GetNodes[0]);
+            Grid = world.grid;
+            InitPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
+        }
 
+        public void InitPaths(Node start, Node destination)
+        {
+            Start = start;
+            Destination = destination;
+            UnVisited = Grid.GetNodes;
+            Visited.Add(start);
+            AddRoad(Start);
         }
 
         public override bool Update(int tick)
-        {
+        { 
             if (tasks != null)
             {
                 if (tasks.First().TaskComplete(this))
@@ -59,12 +65,33 @@ namespace Models
 
         public void moveRobot()
         {
-            GetShortestPath();
+            FollowPath();
         }
 
+        private List<Node> GeneratePath()
+        {
+            //int index = ;
+            List<Node> path = new List<Node>();
+            Road DestinationRoad = GetRoadByNode(Destination);
 
-        private Road path;
-        public void GetShortestPath()
+            while (!done)
+            {
+                if (DestinationRoad != null)
+                {
+                    path.Insert(0, DestinationRoad.Node);
+                    DestinationRoad = DestinationRoad.PreviousNode;
+                }
+                else
+                {
+                    done = true;
+                }
+            }
+
+            return path;
+        }
+
+        //private Road path;
+        private List<Node> GetShortestPath()
         {
             if (Visited.Last() != Destination)
             {
@@ -79,106 +106,90 @@ namespace Models
                 if (RoadStack.Count() > 0)
                 {
                     Visited.Add(RoadStack.First().Node);
-                    AllRoads.Add(RoadStack.First());
+                    //AllRoads.Add(RoadStack.First());
                     RoadStack.Remove(RoadStack.First());
                 }
 
                 SortList(RoadStack);
-                GetShortestPath();
+                return GetShortestPath();
             }
             else
             {
-
-                if (Path.Count == 0)
-                {
-                    index = RoadStack.Count - 1;
-                    path = GetRoadByNode(Destination);
-                }
-
-                while (!done)
-                {
-                    if (path != null)
-                    {
-                        Path.Insert(0, path.Node);
-                        path = path.PreviousNode;
-                        index--;
-                    }
-                    else
-                    {
-                        done = true;
-                        index = 0;
-                    }
-                }
-
-                //index = 0;
-                double nodeX = Path[index].x;
-                double nodeZ = Path[index].z;
-
-                double countX = x;
-                countX = countInRange(countX, nodeX, Speed);
-
-                double countZ = z;
-                countZ = countInRange(countZ, nodeZ, Speed);
-
-                Move(countX, 0.05, countZ);
-                Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}, Path = {3}, {4}", x, y, z, Path[index].x, Path[index].z);
-
-                if ((x == nodeX && z == nodeZ) && Destination != Path[index])
-                {
-                    index++;
-                }
+                return GeneratePath();
             }
         }
 
-
-
-        private List<Road> RoadStackAdd(Node newNode)
+        private int index = 0;
+        private List<Node> path;
+        private void FollowPath()
         {
-            bool update = true;
+            if (path == null)
+                path = GetShortestPath();
+
+            double nodeX = path[index].x;
+            double nodeZ = path[index].z;
+
+            double countX = x;
+            countX = countInRange(countX, nodeX, Speed);
+
+            double countZ = z;
+            countZ = countInRange(countZ, nodeZ, Speed);
+
+            Move(countX, 0.05, countZ);
+            Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}", x, y, z);
+
+            if ((x == nodeX && z == nodeZ) && Destination != path[index])
+            {
+                index++;
+            }
+            else if ((x == nodeX && z == nodeZ) && Destination == path[index])
+            {
+                Reset();
+            }
+        }
+
+        private void RoadStackAdd(Node newNode)
+        {
             if (RoadStack.Count != 0)
             {
-                double distance = Grid.CalculateDistance(newNode, RoadStack.Last().Node);
-                // Overwrite the node if it already exists
-                for (int i = 0; i < RoadStack.Count; i++)
+                if (!UpdateDistance(RoadStack, newNode))
                 {
-
-                    if (RoadStack[i].Node.x == newNode.x && RoadStack[i].Node.z == newNode.z && GetRoadByNode(RoadStack[i].Node) != null)
-                    {
-                        if (Grid.CalculateDistance(RoadStack[i].Node, newNode) > distance)
-                        {
-                            RoadStack[i].Node = newNode;
-                            return RoadStack;
-                        }
-                    }
-                    else if (RoadStack[i].Node.x == newNode.x && RoadStack[i].Node.z == newNode.z && GetRoadByNode(RoadStack[i].Node) != null)
-                    {
-                        if (Grid.CalculateDistance(RoadStack[i].Node, newNode) <= distance)
-                        {
-                            update = false;
-                        }
-                    }
+                    return;
                 }
-                if (!update)
-                {
-                    return RoadStack;
-                }
-
-                // Add a new node
-                Road road = new Road(newNode);
-                road.AddPreviousRoad(GetRoadByNode(Visited.Last()));
-
-                road.Distance = Grid.CalculateDistance(newNode, Visited.Last());
-                //RoadStack.Add(road);
-                RoadStack.Add(road);
             }
-            else
+
+            
+            RoadStack.Add(AddRoad(newNode));
+        }
+
+        private Road AddRoad(Node node)
+        {
+            Road road = new Road(node);
+            road.Distance = Grid.CalculateDistance(node, Visited.Last());
+            road.PreviousNode = (Visited.Last() == node) ? null : GetRoadByNode(Visited.Last());
+            AllRoads.Add(road);
+            return road;
+        }
+
+        private bool UpdateDistance(List<Road> list, Node newNode)
+        {
+            bool updated = true;
+            double distance = Grid.CalculateDistance(newNode, RoadStack.Last().Node);
+            for (int i = 0; i < RoadStack.Count; i++)
             {
-                Road road = new Road(newNode);
-                road.Distance = Grid.CalculateDistance(newNode, Visited.Last());
-                //RoadStack.Add(road);
-                RoadStack.Add(road);
+                if (RoadStack[i].Node.x == newNode.x && RoadStack[i].Node.z == newNode.z && GetRoadByNode(RoadStack[i].Node) != null)
+                {
+                    if (Grid.CalculateDistance(RoadStack[i].Node, newNode) > distance)
+                    {
+                        RoadStack[i].Node = newNode;
+                    }
+                    else if (Grid.CalculateDistance(RoadStack[i].Node, newNode) <= distance)
+                    {
+                        updated = false;
+                    }
+                }
             }
-            return RoadStack;
+            return updated;
         }
 
         private void SortList(List<Road> list)
@@ -217,14 +228,6 @@ namespace Models
             return Math.Round(start, 1);
         }
 
-        public void GetPaths(Node start, Node destination)
-        {
-            Start = start;
-            Destination = destination;
-            Visited.Add(start);
-            Move(start.x, 0.05, start.z);
-        }
-
         private Road GetRoadByNode(Node node)
         {
             foreach (Road road in AllRoads)
@@ -235,6 +238,17 @@ namespace Models
                 }
             }
             return null;
+        }
+
+        private void Reset()
+        {
+            Start = null;
+            Destination = null;
+            UnVisited = Grid.GetNodes;
+            Visited = null;
+            RoadStack = null;
+            AllRoads = null;
+
         }
     }
 
