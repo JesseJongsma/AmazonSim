@@ -11,12 +11,17 @@ namespace Models
         public List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
+        List<Task> tasks = new List<Task>();
         private int cargo = 3; //Number of receiving racks
 
         public World()
         {
             DrawRoads(2); // Max 6 roads
-            CreateRobot(-35, 0.05, 20);
+            makeTask();
+            for (int i = 0; i < 3; i++)
+            {
+                CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
+            }
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
         }
@@ -25,7 +30,6 @@ namespace Models
         {
             Robots robot = new Robots(this, "robot", x, y, z, 0, 0, 0);
             worldObjects.Add(robot);
-            addTask(robot, grid);
             return robot;
         }
 
@@ -92,7 +96,9 @@ namespace Models
                         if (u is Robots)
                         {
                             Robots robot = (Robots)u;
-                            robot.Update(tick);  
+                            if (robot.robotMove == null && tasks.Count != 0)
+                                robot.giveTask(addTask(robot));
+                            robot.Update(tick);
                         }
                         else if (u is Spaceships)
                         {
@@ -120,15 +126,25 @@ namespace Models
 
             return true;
         }
-        
-        private void addTask(Robots robot, Grid grid)
+
+        private void makeTask()
         {
             Task task = new Task();
             task.firstDestination = grid.GetNodes[17];
             task.finialDestination = grid.GetNodes[32];
-            RobotMove robotmove = new RobotMove(task, robot, grid); 
-            robot.tasks.Add(robotmove);
-            
+            tasks.Add(task);
+
+            Task task1 = new Task();
+            task1.firstDestination = grid.GetNodes[9];
+            task1.finialDestination = grid.GetNodes[24];
+            tasks.Add(task1);
+        }
+
+        private Task addTask(Robots robot)
+        {
+            Task task = tasks.First();
+            tasks.RemoveAt(0);
+            return task;
         }
 
         private double radius = 0;
@@ -143,19 +159,19 @@ namespace Models
                 radius = (radius >= 360) ? 0 : radius;
             }
         }
-        
+
         private int loaded = 0;
-        private double x = 0; 
+        private double x = 0;
         private void receiveCargo(Spaceships spaceship)
         {
             if (spaceship.checkCoordinates())
                 loaded++;
 
-            if (10 < loaded && loaded <= (cargo + 10)) 
+            if (10 < loaded && loaded <= (cargo + 10))
             {
                 Racks rack = CreateRack(spaceship.x + x, 2, spaceship.z);
                 Console.WriteLine("LOADING RACK");
-                x+=2.5; 
+                x += 2.5;
             }
         }
 

@@ -12,20 +12,18 @@ namespace Models
         private List<Node> UnVisited = new List<Node>();
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
-        //private List<Node> Path = new List<Node>();
-        public List<RobotMove> tasks = new List<RobotMove>();
+        public RobotMove robotMove = null; 
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
-        private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
+        private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. 
         bool done = false;
 
         public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
             Grid = world.grid;
-            //InitPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
         }
 
         public void InitPaths(Node start, Node destination)
@@ -37,32 +35,29 @@ namespace Models
             AddRoad(Start);
         }
 
+        public void giveTask(Task task)
+        {
+            robotMove = new RobotMove(task, this, Grid);
+        }
+
         public override bool Update(int tick)
         {
-            if (needsUpdate)
+            if (robotMove != null)
             {
-                if (tasks != null)
+                if (robotMove.TaskComplete(this))
                 {
-                    if (tasks.First().TaskComplete(this))
-                    {
-                        Console.WriteLine("override bool update");
-                        tasks.RemoveAt(0);
-                        if (tasks.Count == 0)
-                        {
-                            tasks = null;
-                        }
-
-                        Console.WriteLine("StartTask");
-                    }
-                    else if (!tasks.First().TaskComplete(this))
-                    {
-                        tasks.First().StartTask(this);
-                    }
+                    Console.WriteLine("override bool update");
+                    robotMove = null;
+                    return false;
                 }
-                needsUpdate = true;
+                else if (!robotMove.TaskComplete(this))
+                {
+                    robotMove.StartTask(this);
+                }
                 return true;
             }
-            return false;
+            return true;
+
         }
 
         public void moveRobot()
