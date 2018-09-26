@@ -26,9 +26,6 @@ namespace Models
         {
             Console.WriteLine("Robot created");
             Grid = world.grid;
-            List<Model3D> worldObjects = world.worldObjects;
-            UnVisited = Grid.GetNodes;
-
             InitPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
         }
 
@@ -36,9 +33,9 @@ namespace Models
         {
             Start = start;
             Destination = destination;
+            UnVisited = Grid.GetNodes;
             Visited.Add(start);
             AddRoad(Start);
-            Move(start.x, 0.05, start.z);
         }
 
         //public override bool Update(int tick)
@@ -139,9 +136,9 @@ namespace Models
             {
                 index++;
             }
-            else if (Destination == path[index])
+            else if ((x == nodeX && z == nodeZ) && Destination == path[index])
             {
-                Console.WriteLine("👌");
+                Reset();
             }
         }
 
@@ -235,6 +232,17 @@ namespace Models
                 }
             }
             return null;
+        }
+
+        private void Reset()
+        {
+            Start = null;
+            Destination = null;
+            UnVisited = Grid.GetNodes;
+            Visited = null;
+            RoadStack = null;
+            AllRoads = null;
+
         }
     }
 
