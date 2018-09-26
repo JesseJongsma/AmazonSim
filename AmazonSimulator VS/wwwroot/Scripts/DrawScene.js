@@ -4,12 +4,14 @@
         this.scene = scene;
     }
 
-    drawSphere(x, y, z, posx, posy, posz, pathPicture, boolSkybox) {
+    drawSphere(x, y, z, posx, posy, posz, pathPicture = null, color = null) {
         var sphereGeometry = new THREE.SphereGeometry(x, y, z);
-        if (boolSkybox == true)
+        if (pathPicture != null && color == null)
             var sphereMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load(pathPicture), side: THREE.DoubleSide });
+        else if (pathPicture == null && color != null)
+            var sphereMaterial = new THREE.MeshLambertMaterial({ color: color });
         else
-            var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00 });
+            console.log("Invalid input");
         var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.set(posx, posy, posz);
         return sphere;
@@ -88,7 +90,7 @@
 
     drawCone(x, y, z, radius, setColor) {
         var geometry = new THREE.ConeGeometry(radius, y, 32);
-        var material = new THREE.MeshLambertMaterial({ color: setColor, transparent: true, opacity: 0.2 });
+        var material = new THREE.MeshBasicMaterial({ color: setColor, transparent: true, opacity: 0.2 });
         cone = new THREE.Mesh(geometry, material);
         cone.position.x = x;
         cone.position.y = y / 2;

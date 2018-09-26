@@ -66,6 +66,17 @@ namespace Models
                 return ConnectedNodesList;
             }
         }
+
+        private Node getNode;
+        public Node GetNodeByCoordinates(double x, double z)
+        {
+            foreach (Node node in NodesList)
+            {
+                if (Math.Round(x, 2) == Math.Round(node.x, 2) && Math.Round(z, 2) == Math.Round(node.z, 2))
+                    getNode = node; 
+            }
+            return getNode; 
+        }
     }
 
     public class Node
@@ -74,7 +85,7 @@ namespace Models
         public double z;
     }
 
-    public class ConnectedNodes 
+    public class ConnectedNodes
     {
         public Node Source { get; set; }
         public Node Destination { get; set; }

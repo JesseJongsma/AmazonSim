@@ -16,7 +16,7 @@ namespace Models
         public World()
         {
             DrawRoads(2); // Max 6 roads
-            CreateRobot(0, 0.05, 0);
+            CreateRobot(-35, 0.05, 20);
             CreateSpaceShip(-45, 25, 0);
             CreateModel3D("earth", 500, 10, 500);
         }
@@ -25,6 +25,7 @@ namespace Models
         {
             Robots robot = new Robots(grid, "robot", x, y, z, 0, 0, 0);
             worldObjects.Add(robot);
+            addTask(robot, grid);
             return robot;
         }
 
@@ -91,7 +92,7 @@ namespace Models
                         if (u is Robots)
                         {
                             Robots robot = (Robots)u;
-                            robot.moveRobot();
+                            robot.Update(50);  
                         }
                         else if (u is Spaceships)
                         {
@@ -102,7 +103,7 @@ namespace Models
                         else if (u is Racks)
                         {
                             Racks rack = (Racks)u;
-                            //rack.moveRack();
+                            rack.moveRack();
                         }
 
                         else
@@ -118,6 +119,16 @@ namespace Models
             }
 
             return true;
+        }
+        
+        private void addTask(Robots robot, Grid grid)
+        {
+            Task task = new Task();
+            task.firstDestination = grid.GetNodes[17];
+            task.finialDestination = grid.GetNodes[32];
+            RobotMove robotmove = new RobotMove(task, robot, grid); 
+            robot.tasks.Add(robotmove);
+            
         }
 
         private double radius = 0;
@@ -250,3 +261,5 @@ internal class Unsubscriber<Command> : IDisposable
             _observers.Remove(_observer);
     }
 }
+
+

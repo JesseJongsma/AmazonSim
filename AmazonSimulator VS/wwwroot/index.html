@@ -31,9 +31,6 @@
             var cameraControls;
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
-            var rackGroup = new THREE.Group();
-
-            var rackObject;
             var radius = 0;
 
             function init() {
@@ -43,15 +40,12 @@
                 scene = new THREE.Scene();
                 if (!DEBUG) {
                     //The sphere sky box is drawn
-                    scene.add(drawScene.drawSphere(900, 32, 32, 0, 0, 0, "/SkyBox/galaxy.png", true));
+                    scene.add(drawScene.drawSphere(900, 32, 32, 0, 0, 0, "/SkyBox/galaxy.png"));
                 }
 
                 //The light is drawn
                 scene.add(drawScene.drawLight(-10, 200, 490, 1, 0, 0xffffff, "pointLight"));
-                scene.add(drawScene.drawLight(0, 10, 0, 1, 200, 0xffffff, "pointLight"));
-
-                //The sun is drawn
-                scene.add(drawScene.drawSphere(5, 32, 32, -20, 200, 500));
+                scene.add(drawScene.drawLight(0, 50, 0, 1, 300, 0xffffff, "pointLight"));
 
                 //The plane is drawn
                 scene.add(drawScene.drawPlane(101, 50, 0, 0, 0, 0xffffff));
@@ -142,16 +136,16 @@
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data)
                 if (command.command === "update") {
-                    var c = command.parameters; 
-                    if (Object.keys(worldObjects).indexOf(c.guid) < 0) {
-                        switch (c.type) {
+                    var commandParam = command.parameters; 
+                    if (Object.keys(worldObjects).indexOf(commandParam.guid) < 0) {
+                        switch (commandParam.type) {
                             //Trying to load robot
                             case "robot":
                                 var group = drawScene.drawRobot(0.9, 0.3, 0.9);
                                 scene.add(group);
 
                                 console.log("TRYING TO LOAD THE ROBOT");
-                                worldObjects[c.guid] = group;
+                                worldObjects[commandParam.guid] = group;
                                 break;
 
                             //Trying to load spaceship
@@ -161,7 +155,7 @@
                                     loaded = true;
                                     drawScene.drawOBJModel("/Objects/", "model.obj", "/Objects/", "material.mtl", (object) => {
                                         object.scale.set(5, 5, 5);
-                                        worldObjects[c.guid] = spaceShipGroup;
+                                        worldObjects[commandParam.guid] = spaceShipGroup;
                                         spaceShipGroup.add(object);
                                         scene.add(spaceShipGroup);
                                     });
@@ -175,7 +169,7 @@
                                     earth = true;
                                     drawScene.drawOBJModel("/Objects/", "Earth.obj", "/Objects/", "Earth.mtl", (obj) => {
                                         obj.scale.set(5, 5, 5);
-                                        worldObjects[c.guid] = obj;
+                                        worldObjects[commandParam.guid] = obj;
                                         scene.add(obj);
                                     });
                                 }
@@ -188,7 +182,7 @@
                                     rack = true;
                                     drawScene.drawOBJModel("/Objects/", "Rack.obj", "/Objects/", "Rack.mtl", (obj) => {
                                         obj.scale.set(3, 3, 3);
-                                        worldObjects[c.guid] = obj;
+                                        worldObjects[commandParam.guid] = obj;
                                         scene.add(obj);
                                         rack = false;
                                     });
@@ -198,34 +192,34 @@
                             //Trying to load road
                             case "road":
                                 console.log("LOADING A ROAD");
-                                scene.add(drawScene.drawPlane(c.width, c.height, c.x, 0.05, c.z, 0x808080));
+                                scene.add(drawScene.drawPlane(commandParam.width, commandParam.height, commandParam.x, 0.05, commandParam.z, 0x808080));
                                 break;
 
                             //Trying to load node
                             case "node":
                                 console.log("NODE");
-                                scene.add(drawScene.drawNodeOrSyn(c.x, c.z, null, null, 0x00ff00, false));
+                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, 0x00ff00, false));
                                 break;
 
                             //Trying to load synapse
                             case "synapse":
                                 console.log("SYNAPSE");
-                                scene.add(drawScene.drawNodeOrSyn(c.x, c.z, c.width, c.depth, 0xff00ff, true));
+                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, commandParam.width, commandParam.depth, 0xff00ff, true));
                                 break;
                         }
                     }
 
-                    var object = worldObjects[c.guid];
+                    var object = worldObjects[commandParam.guid];
                     if (object != null) {
-                        object.position.x = c.x;
-                        object.position.y = c.y;
-                        object.position.z = c.z;
+                        object.position.x = commandParam.x;
+                        object.position.y = commandParam.y;
+                        object.position.z = commandParam.z;
 
-                        object.rotation.x = c.rotationX;
-                        object.rotation.y = c.rotationY;
-                        object.rotation.z = c.rotationZ;
+                        object.rotation.x = commandParam.rotationX;
+                        object.rotation.y = commandParam.rotationY;
+                        object.rotation.z = commandParam.rotationZ;
 
-                        checkCone(c);
+                        checkCone(commandParam);
                     }
                 }
             }

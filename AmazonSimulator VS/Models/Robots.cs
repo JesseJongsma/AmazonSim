@@ -13,12 +13,11 @@ namespace Models
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
         private List<Node> Path = new List<Node>();
-        private List<IRobotTask> tasks = new List<IRobotTask>(); 
+        public List<RobotMove> tasks = new List<RobotMove>();
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
-        private IRobotTask Tasks; 
         private const double Speed = 0.2; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
         bool done = false;
         private int index = 0;
@@ -28,41 +27,42 @@ namespace Models
             Console.WriteLine("Robot created");
             Grid = grid;
             UnVisited = Grid.GetNodes;
-            GetPaths(Grid.GetNodes[18], Grid.GetNodes[32]);
-            Move(Start.x, 0.05, Start.z);
+            Move(-35, 0.05, 20);
+            GetPaths(grid.GetNodes[0], grid.GetNodes[0]);
 
         }
 
-        public void addTask(int start, int end)
+        public override bool Update(int tick)
         {
-            tasks.Add(new RobotMove(Path));
+            if (tasks != null)
+            {
+                if (tasks.First().TaskComplete(this))
+                {
+                    Console.WriteLine("override bool update");
+                    tasks.RemoveAt(0);
+                    if (tasks.Count == 0)
+                    {
+                        tasks = null;
+                        return false;
+                    }
+                    
+                    Console.WriteLine("StartTask");
+                }
+                else if (!tasks.First().TaskComplete(this))
+                {
+                    tasks.First().StartTask(this);
+                    return true;
+                }    
+            }
+            return false; 
         }
-
-        //public override bool Update(int tick)
-        //{
-        //    if (tasks != null)
-        //    {
-        //        if (tasks.First().TaskComplete(this))
-        //        {
-        //            tasks.RemoveAt(0);
-        //            if (tasks.Count == 0)
-        //            {
-        //                tasks = null;
-        //            }
-        //            tasks.First().StartTask(this);
-        //        }
-        //        return true;
-        //    }
-        //    else
-        //        return false;
-        //}
 
         public void moveRobot()
         {
             GetShortestPath();
         }
 
-        
+
         private Road path;
         public void GetShortestPath()
         {
@@ -223,10 +223,6 @@ namespace Models
             Destination = destination;
             Visited.Add(start);
             Move(start.x, 0.05, start.z);
-            //Road begin = new Road(start);
-            //begin.Distance = 0;
-            //begin.AddPreviousRoad(null);
-            //RoadStackAdd(start);
         }
 
         private Road GetRoadByNode(Node node)
