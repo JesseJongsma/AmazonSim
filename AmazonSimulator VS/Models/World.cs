@@ -92,7 +92,7 @@ namespace Models
                         if (u is Robots)
                         {
                             Robots robot = (Robots)u;
-                            robot.Update(50);  
+                            robot.Update(tick);  
                         }
                         else if (u is Spaceships)
                         {

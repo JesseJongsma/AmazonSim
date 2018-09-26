@@ -13,20 +13,19 @@ namespace Models
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
         //private List<Node> Path = new List<Node>();
-        private List<IRobotTask> tasks = new List<IRobotTask>();
+        public List<RobotMove> tasks = new List<RobotMove>();
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
-        private IRobotTask Tasks;
-        private const double Speed = 0.2; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
+        private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. // 0.5 is the recommended speed.
         bool done = false;
 
         public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
             Grid = world.grid;
-            InitPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
+            //InitPaths(Grid.GetNodes[0], Grid.GetNodes[32]);
         }
 
         public void InitPaths(Node start, Node destination)
@@ -39,28 +38,31 @@ namespace Models
         }
 
         public override bool Update(int tick)
-        { 
-            if (tasks != null)
+        {
+            if (needsUpdate)
             {
-                if (tasks.First().TaskComplete(this))
+                if (tasks != null)
                 {
-                    Console.WriteLine("override bool update");
-                    tasks.RemoveAt(0);
-                    if (tasks.Count == 0)
+                    if (tasks.First().TaskComplete(this))
                     {
-                        tasks = null;
-                        return false;
+                        Console.WriteLine("override bool update");
+                        tasks.RemoveAt(0);
+                        if (tasks.Count == 0)
+                        {
+                            tasks = null;
+                        }
+
+                        Console.WriteLine("StartTask");
                     }
-                    
-                    Console.WriteLine("StartTask");
+                    else if (!tasks.First().TaskComplete(this))
+                    {
+                        tasks.First().StartTask(this);
+                    }
                 }
-                else if (!tasks.First().TaskComplete(this))
-                {
-                    tasks.First().StartTask(this);
-                    return true;
-                }    
+                needsUpdate = true;
+                return true;
             }
-            return false; 
+            return false;
         }
 
         public void moveRobot()
@@ -121,7 +123,7 @@ namespace Models
 
         private int index = 0;
         private List<Node> path;
-        private void FollowPath()
+        public void FollowPath()
         {
             if (path == null)
                 path = GetShortestPath();
@@ -158,7 +160,7 @@ namespace Models
                 }
             }
 
-            
+
             RoadStack.Add(AddRoad(newNode));
         }
 
@@ -245,9 +247,9 @@ namespace Models
             Start = null;
             Destination = null;
             UnVisited = Grid.GetNodes;
-            Visited = null;
-            RoadStack = null;
-            AllRoads = null;
+            Visited = new List<Node>();
+            RoadStack = new List<Road>();
+            AllRoads = new List<Road>();
 
         }
     }

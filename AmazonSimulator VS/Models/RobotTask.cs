@@ -34,16 +34,13 @@ namespace Models
                 if (loaded == false)
                 {
                     loaded = true; 
-                    robot.GetPaths(node, task.firstDestination);
-                    RunTask(robot);
+                    robot.InitPaths(node, task.firstDestination);
                 }
-
                 else if (node == task.firstDestination)
                 {
-                    robot.GetPaths(task.firstDestination, task.finialDestination);
-                    RunTask(robot);
-                    loaded = false; 
+                    robot.InitPaths(task.firstDestination, task.finialDestination);
                 }
+                RunTask(robot);
             }
         }
 
@@ -51,9 +48,7 @@ namespace Models
         {
             if (this.robot == robot)
             {
-                robot.GetShortestPath();
-                if (!TaskComplete(robot))
-                    StartTask(robot);
+                robot.FollowPath();
             }
         }
 
@@ -62,7 +57,10 @@ namespace Models
             if (this.robot == robot)
             {
                 if (robot.x == task.finialDestination.x && robot.z == task.finialDestination.z)
+                {
+                    loaded = false;
                     return true;
+                }
                 else
                 {
                     return false;
