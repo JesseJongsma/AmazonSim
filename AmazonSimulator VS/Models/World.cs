@@ -17,7 +17,9 @@ namespace Models
         public World()
         {
             DrawRoads(2); // Max 6 roads
-            makeTask();
+            makeTask(18, 32);
+            makeTask(22, 24);
+            makeTask(10, 25);
             for (int i = 0; i < 3; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
@@ -127,17 +129,12 @@ namespace Models
             return true;
         }
 
-        private void makeTask()
+        private void makeTask(int firstNode, int finialNode)
         {
             Task task = new Task();
-            task.firstDestination = grid.GetNodes[17];
-            task.finialDestination = grid.GetNodes[32];
+            task.firstDestination = grid.GetNodes[firstNode];
+            task.finialDestination = grid.GetNodes[finialNode];
             tasks.Add(task);
-
-            Task task1 = new Task();
-            task1.firstDestination = grid.GetNodes[9];
-            task1.finialDestination = grid.GetNodes[24];
-            tasks.Add(task1);
         }
 
         private Task addTask(Robots robot)
