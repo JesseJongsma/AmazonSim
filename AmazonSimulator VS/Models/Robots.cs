@@ -12,13 +12,13 @@ namespace Models
         private List<Node> UnVisited = new List<Node>();
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
-        public RobotMove robotMove = null; 
+        public RobotMove robotMove = null;
 
         private Node Start;
         private Node Destination;
         private Grid Grid;
         private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. 
-        bool done = false;
+        //bool done = false;
 
         public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
@@ -60,14 +60,10 @@ namespace Models
 
         }
 
-        public void moveRobot()
-        {
-            FollowPath();
-        }
-
         private List<Node> GeneratePath()
         {
             //int index = ;
+            bool done = false;
             List<Node> path = new List<Node>();
             Road DestinationRoad = GetRoadByNode(Destination);
 
@@ -141,6 +137,7 @@ namespace Models
             }
             else if ((x == nodeX && z == nodeZ) && Destination == path[index])
             {
+                index = 0;
                 Reset();
             }
         }
@@ -149,12 +146,11 @@ namespace Models
         {
             if (RoadStack.Count != 0)
             {
-                if (!UpdateDistance(RoadStack, newNode))
+                if (UpdateDistance(RoadStack, newNode))
                 {
                     return;
                 }
             }
-
 
             RoadStack.Add(AddRoad(newNode));
         }
@@ -162,30 +158,38 @@ namespace Models
         private Road AddRoad(Node node)
         {
             Road road = new Road(node);
-            road.Distance = Grid.CalculateDistance(node, Visited.Last());
-            road.PreviousNode = (Visited.Last() == node) ? null : GetRoadByNode(Visited.Last());
+
+            if (Visited.Last() == node)
+            {
+                road.PreviousNode = null;
+                road.Distance = Grid.CalculateDistance(node, Visited.Last());
+            }
+            else
+            {
+                road.PreviousNode = GetRoadByNode(Visited.Last());
+                road.Distance = Grid.CalculateDistance(node, Visited.Last()) + road.PreviousNode.Distance;
+            }
+
             AllRoads.Add(road);
             return road;
         }
 
         private bool UpdateDistance(List<Road> list, Node newNode)
         {
-            bool updated = true;
-            double distance = Grid.CalculateDistance(newNode, RoadStack.Last().Node);
+            bool updated = false;
+            double distance = Grid.CalculateDistance(newNode, Visited.Last());
             for (int i = 0; i < RoadStack.Count; i++)
             {
-                if (RoadStack[i].Node.x == newNode.x && RoadStack[i].Node.z == newNode.z && GetRoadByNode(RoadStack[i].Node) != null)
+                if (RoadStack[i].Node == newNode)
                 {
-                    if (Grid.CalculateDistance(RoadStack[i].Node, newNode) > distance)
+                    if (Grid.CalculateDistance(RoadStack[i].Node, Visited.Last()) > distance)
                     {
                         RoadStack[i].Node = newNode;
-                    }
-                    else if (Grid.CalculateDistance(RoadStack[i].Node, newNode) <= distance)
-                    {
-                        updated = false;
+                        updated = true;
                     }
                 }
             }
+
             return updated;
         }
 
@@ -245,7 +249,7 @@ namespace Models
             Visited = new List<Node>();
             RoadStack = new List<Road>();
             AllRoads = new List<Road>();
-
+            path = null;
         }
     }
 

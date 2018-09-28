@@ -13,10 +13,11 @@ namespace Models
     }
     public class RobotMove : IRobotTask
     {
-        private Node node; 
+        private Node robotLocation; 
         private Task task;
         private Grid grid;
         private Robots robot;
+        private Node destination;
         private bool loaded = false; 
 
         public RobotMove(Task task, Robots robot, Grid grid)
@@ -30,15 +31,17 @@ namespace Models
         {
             if (this.robot == robot)
             {
-                node = grid.GetNodeByCoordinates(robot.x, robot.z);
-                if (loaded == false)
+                robotLocation = grid.GetNodeByCoordinates(robot.x, robot.z);
+                if (!loaded)
                 {
-                    loaded = true; 
-                    robot.InitPaths(node, task.firstDestination);
+                    loaded = true;
+                    destination = task.firstDestination;
+                    robot.InitPaths(robotLocation, destination);
                 }
-                else if (node == task.firstDestination)
+                else if (robotLocation == destination)
                 {
-                    robot.InitPaths(task.firstDestination, task.finialDestination);
+                    destination = task.finialDestination;
+                    robot.InitPaths(robotLocation, destination);
                 }
                 RunTask(robot);
             }
