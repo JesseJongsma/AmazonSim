@@ -74,6 +74,6 @@ namespace Models
     {
         public Node firstDestination;
         public Node finialDestination;
+        public Racks getRack;
     }
-
 }

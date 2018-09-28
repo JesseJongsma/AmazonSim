@@ -12,14 +12,14 @@ namespace Models
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
         List<Task> tasks = new List<Task>();
+        List<Racks> racks = new List<Racks>();
+        private bool tasksLoaded = false; 
+        private bool checkCoordinateShip = false; 
         private int cargo = 3; //Number of receiving racks
 
         public World()
         {
             DrawRoads(2); // Max 6 roads
-            makeTask(18, 32);
-            makeTask(22, 24);
-            makeTask(10, 25);
             for (int i = 0; i < 3; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
@@ -49,10 +49,12 @@ namespace Models
             return model;
         }
 
-        private Racks CreateRack(double x, double y, double z)
+        private Racks CreateRack(Node node)
         {
-            Racks rack = new Racks("rack", x, y, z, -0.05, -1.42, 0);
+            Racks rack = new Racks("rack", node.x, 2, node.z, -0.05, -1.42, 0);
+            rack.node = node; 
             worldObjects.Add(rack);
+            racks.Add(rack);
             return rack;
         }
 
@@ -82,7 +84,7 @@ namespace Models
                 obs.OnNext(new UpdateModel3DCommand(m3d));
             }
         }
-
+ 
         public bool Update(int tick)
         {
             for (int i = 0; i < worldObjects.Count; i++)
@@ -97,21 +99,29 @@ namespace Models
                     {
                         if (u is Robots)
                         {
-                            Robots robot = (Robots)u;
-                            if (robot.robotMove == null && tasks.Count != 0)
-                                robot.giveTask(addTask(robot));
-                            robot.Update(tick);
+                            if (racks.Count != 0)
+                            {
+                                Robots robot = (Robots)u;
+                                if (robot.robotMove == null && tasks.Count != 0)
+                                    robot.giveTask(addTask(robot));
+                                robot.Update(tick);
+                            }
                         }
                         else if (u is Spaceships)
                         {
                             Spaceships spaceship = (Spaceships)u;
                             spaceship.moveSpaceship();
-                            receiveCargo(spaceship);
+                            checkCoordinateShip = ReceiveCargo(spaceship);
                         }
                         else if (u is Racks)
                         {
                             Racks rack = (Racks)u;
                             rack.moveRack();
+                            if (checkCoordinateShip == true && tasksLoaded == false )
+                            {
+                                makeTask(7, rack);
+                                tasksLoaded = true; 
+                            }
                         }
 
                         else
@@ -129,11 +139,12 @@ namespace Models
             return true;
         }
 
-        private void makeTask(int firstNode, int finialNode)
+        private void makeTask(int finialNode, Racks rack)
         {
             Task task = new Task();
-            task.firstDestination = grid.GetNodes[firstNode];
+            task.firstDestination = rack.node; 
             task.finialDestination = grid.GetNodes[finialNode];
+            task.getRack = rack;
             tasks.Add(task);
         }
 
@@ -158,18 +169,26 @@ namespace Models
         }
 
         private int loaded = 0;
-        private double x = 0;
-        private void receiveCargo(Spaceships spaceship)
+        private int i = 3;
+        private bool ReceiveCargo(Spaceships spaceship)
         {
             if (spaceship.checkCoordinates())
+            {
                 loaded++;
+                Console.WriteLine("check");
+            }
 
             if (10 < loaded && loaded <= (cargo + 10))
             {
-                Racks rack = CreateRack(spaceship.x + x, 2, spaceship.z);
+                Console.WriteLine("checkgelukt");
+                CreateRack(grid.GetNodes[i]);
                 Console.WriteLine("LOADING RACK");
-                x += 2.5;
+                i++;
+                return true;
             }
+
+            else
+                return false;
         }
 
         private void DrawRoads(double amountRoads)
