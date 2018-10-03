@@ -44,7 +44,7 @@ namespace Models
                 }
                 else if (robotLocation == destination)
                 {
-                    destination = task.finialDestination;
+                    destination = task.finalDestination;
                     robot.InitPaths(robotLocation, destination);
                 }
                 RunTask(robot);
@@ -72,7 +72,7 @@ namespace Models
                     rackmove.MovingRack(task.getRack, robot);
                 }
 
-                if ((robot.x == task.finialDestination.x && robot.z == task.finialDestination.z) && firstDestinationVisited)
+                if ((robot.x == task.finalDestination.x && robot.z == task.finalDestination.z) && firstDestinationVisited)
                 {
                     Console.WriteLine(symbol * 2);
                     robot.Move(robot.x, robot.y, robot.z + (symbol * 2));
@@ -92,7 +92,7 @@ namespace Models
     public class Task
     {
         public Node firstDestination;
-        public Node finialDestination;
+        public Node finalDestination;
         public Racks getRack;
     }
 
