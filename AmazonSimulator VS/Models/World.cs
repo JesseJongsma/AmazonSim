@@ -12,7 +12,6 @@ namespace Models
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
         List<Task> tasks = new List<Task>();
-        List<Racks> racks = new List<Racks>();
         private bool tasksLoaded = false; 
         private bool checkCoordinateShip = false; 
         private int cargo = 3; //Number of receiving racks
@@ -20,7 +19,7 @@ namespace Models
         public World()
         {
             DrawRoads(2); // Max 6 roads
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
             }
@@ -54,9 +53,23 @@ namespace Models
             Racks rack = new Racks("rack", node.x, 2, node.z, -0.05, -1.42, 0);
             rack.node = node; 
             worldObjects.Add(rack);
-            racks.Add(rack);
             return rack;
         }
+
+        private void drawLight(double x, double y, double z, double r_x, double r_y, double r_z)
+        {
+            Model3D light = new Model3D("light", x, y, z, r_x, r_y, r_z);
+            worldObjects.Add(light);
+        }
+
+        private void drawRoad(double x, double z, double width, double height)
+        {
+            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
+            road.Transform(width, height, 0);
+            worldObjects.Add(road);
+        }
+
+      
 
         public IDisposable Subscribe(IObserver<Command> observer)
         {
@@ -84,7 +97,8 @@ namespace Models
                 obs.OnNext(new UpdateModel3DCommand(m3d));
             }
         }
- 
+
+        private int countRacks = 0; 
         public bool Update(int tick)
         {
             for (int i = 0; i < worldObjects.Count; i++)
@@ -99,7 +113,13 @@ namespace Models
                     {
                         if (u is Robots)
                         {
-                            if (racks.Count != 0)
+                            foreach(Model3D model in worldObjects)
+                            {
+                                if(model.type == "rack")
+                                    countRacks++; 
+                            }
+
+                            if (countRacks != 0)
                             {
                                 Robots robot = (Robots)u;
                                 if (robot.robotMove == null && tasks.Count != 0)
@@ -117,17 +137,19 @@ namespace Models
                         {
                             Racks rack = (Racks)u;
                             rack.moveRack();
-                            if (checkCoordinateShip == true && tasksLoaded == false )
+                            if (checkCoordinateShip == true && tasksLoaded == false)
                             {
-                                makeTask(7, rack);
-                                tasksLoaded = true; 
+                                makeTask(rack, 32);
+                                tasksLoaded = true;
                             }
                         }
-
                         else
                         {
-                            Model3D earth = (Model3D)u;
-                            moveEarth(earth);
+                            Model3D model = (Model3D)u;
+                            if(model.type == "light")
+                                model.Move(model.x, model.y, model.z);
+
+                            moveEarth(model);
                         }
 
 
@@ -139,10 +161,10 @@ namespace Models
             return true;
         }
 
-        private void makeTask(int finialNode, Racks rack)
+        private void makeTask(Racks rack, int finialNode)
         {
             Task task = new Task();
-            task.firstDestination = rack.node; 
+            task.firstDestination = rack.node;
             task.finialDestination = grid.GetNodes[finialNode];
             task.getRack = rack;
             tasks.Add(task);
@@ -210,7 +232,7 @@ namespace Models
             for (int i = 0; i <= amountRoads; i++)
             {
                 drawRoad(startPosition + segment * i, 0, height, width / 2);
-
+                drawLight(startPosition + segment * i, 10, 12, 0, 1.57, 0);
                 for (int j = 0; j <= 10; j++)
                 {
                     Node rackNode = grid.AddNode(startPosition + segment * i, 20 - 40 / 10 * j);
@@ -258,14 +280,7 @@ namespace Models
                 worldObjects.Add(synapse);
             }
         }
-
-        private void drawRoad(double x, double z, double width, double height)
-        {
-            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
-            road.Transform(width, height, 0);
-            worldObjects.Add(road);
-        }
-
+        
         private void drawNodes()
         {
             foreach (Node node in grid.GetNodes)
