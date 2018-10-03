@@ -7,7 +7,10 @@ namespace Models
 {
     public class Racks : Model3D, IUpdatable
     {
-        public Node node; 
+        private List<Product> Contains = new List<Product>();
+        public Node node;
+
+
         public Racks(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Rack created");
@@ -18,10 +21,16 @@ namespace Models
             Move(x, y, z);
         }
 
+        public void AddProduct(Product product)
+        {
+            Contains.Add(product);
+        }
 
+        //public
 
+        public List<Product> contains { get { return Contains; } }
 
     }
 
-    
+
 }
