@@ -37,7 +37,7 @@ namespace Models
 
         public void giveTask(Task task)
         {
-            robotMove = new RobotMove(task, this, Grid);
+            robotMove = new RobotMove(task, this, Grid, '-');
         }
 
         public override bool Update(int tick)

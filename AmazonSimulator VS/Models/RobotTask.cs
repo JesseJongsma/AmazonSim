@@ -21,12 +21,14 @@ namespace Models
         RackMove rackmove = new RackMove(); 
         private bool loaded = false;
         private bool firstDestinationVisited;
+        private char symbol; 
 
-        public RobotMove(Task task, Robots robot, Grid grid)
+        public RobotMove(Task task, Robots robot, Grid grid, char teken)
         {
             this.task = task;
             this.robot = robot;
             this.grid = grid;
+            this.symbol = teken; 
         }
 
         public void StartTask(Robots robot)
@@ -72,6 +74,9 @@ namespace Models
 
                 if ((robot.x == task.finialDestination.x && robot.z == task.finialDestination.z) && firstDestinationVisited)
                 {
+                    Console.WriteLine(symbol * 2);
+                    robot.Move(robot.x, robot.y, robot.z + (symbol * 2));
+                    rackmove.MovingRack(task.getRack, robot);
                     loaded = false;
                     return true;
                 }

@@ -139,7 +139,7 @@ namespace Models
                             rack.moveRack();
                             if (checkCoordinateShip == true && tasksLoaded == false)
                             {
-                                makeTask(rack, 32);
+                                makeTask(rack, 15);
                                 tasksLoaded = true;
                             }
                         }
