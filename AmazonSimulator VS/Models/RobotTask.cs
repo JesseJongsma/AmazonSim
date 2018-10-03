@@ -70,7 +70,7 @@ namespace Models
                     rackmove.MovingRack(task.getRack, robot);
                 }
 
-                if ((robot.x == task.finialDestination.x && robot.z == task.finialDestination.z) && firstDestinationVisited)
+                if ((robot.x == task.finalDestination.x && robot.z == task.finalDestination.z) && firstDestinationVisited)
                 {
                     loaded = false;
                     return true;

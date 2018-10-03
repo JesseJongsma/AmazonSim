@@ -40,7 +40,10 @@ namespace Models
         public void giveTask()
         {
             if (robotMove == null && _Inventory.Tasks.Count != 0)
+            {
                 robotMove = new RobotMove(_Inventory.Tasks.First(), this, Grid);
+                _Inventory.Tasks.RemoveAt(0);
+            }
         }
 
         public override bool Update(int tick)
@@ -52,7 +55,7 @@ namespace Models
                 if (robotMove.TaskComplete(this))
                 {
                     Console.WriteLine("override bool update");
-                    _Inventory.Tasks.RemoveAt(0);
+                    
                     robotMove = null;
                     return false;
                 }
