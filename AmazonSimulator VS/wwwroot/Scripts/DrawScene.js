@@ -52,11 +52,12 @@
                 light.position.set(x, y, z);
                 return light;
                 break;
+            
         }
     }
 
     drawLensflare(light) {
-        if (light.distance < 100) {
+        if (light.distance == 0) {
             var textureLoader = new THREE.TextureLoader();
             var textureFlare = textureLoader.load("Textures/lensflare.png");
             var lensflare = new THREE.Lensflare();
@@ -73,7 +74,7 @@
         return storage;
     }
 
-    drawOBJModel(modelPath, modelName, texturePath, textureName, onload) {
+    drawOBJModel(modelPath, modelName, texturePath, textureName, onload,) {
         new THREE.MTLLoader()
             .setPath(texturePath)
             .load(textureName, function (materials) {

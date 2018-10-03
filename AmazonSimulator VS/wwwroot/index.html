@@ -19,13 +19,11 @@
         var drawScene = new DrawScene(scene);
         var radius = 0, height = 0;
         var i = 100;
-        var cone = null;
-        var earth = null;
-        var rack = false;
+        var cone, earth, rack, load = false;
+        var light = false; 
         var DEBUG = true;
-        var load = false; 
 
-
+        
         window.onload = function () {
 
             var cameraControls;
@@ -45,8 +43,7 @@
 
                 //The light is drawn
                 scene.add(drawScene.drawLight(-10, 200, 490, 1, 0, 0xffffff, "pointLight"));
-                scene.add(drawScene.drawLight(0, 50, 0, 1, 300, 0xffffff, "pointLight"));
-
+               
                 //The plane is drawn
                 scene.add(drawScene.drawPlane(101, 50, 0, 0, 0, 0xffffff));
 
@@ -205,6 +202,21 @@
                             case "synapse":
                                 console.log("SYNAPSE");
                                 scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, commandParam.width, commandParam.depth, 0xff00ff, true));
+                                break;
+
+                            //Trying to load light
+                            case "light":
+                                if (!light) {
+                                    console.log("Light");
+                                    light = true;
+                                    scene.add(drawScene.drawLight(commandParam.x, commandParam.y, 0, 1, 100, 0xffffff, "pointLight"));
+                                    drawScene.drawOBJModel("/Objects/", "Fluorescent_tube.obj", "/Objects/", "Fluorescent_tube.mtl", (obj) => {
+                                        obj.scale.set(0.5, 0.1, 0.1);
+                                        worldObjects[commandParam.guid] = obj;
+                                        scene.add(obj);
+                                        light = false;
+                                    });
+                                }
                                 break;
                         }
                     }

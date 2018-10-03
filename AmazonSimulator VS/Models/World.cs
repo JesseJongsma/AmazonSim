@@ -69,6 +69,21 @@ namespace Models
             return rack;
         }
 
+        private void drawLight(double x, double y, double z, double r_x, double r_y, double r_z)
+        {
+            Model3D light = new Model3D("light", x, y, z, r_x, r_y, r_z);
+            worldObjects.Add(light);
+        }
+
+        private void drawRoad(double x, double z, double width, double height)
+        {
+            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
+            road.Transform(width, height, 0);
+            worldObjects.Add(road);
+        }
+
+      
+
         public IDisposable Subscribe(IObserver<Command> observer)
         {
             if (!observers.Contains(observer))
@@ -96,6 +111,7 @@ namespace Models
             }
         }
 
+        private int countRacks = 0; 
         public bool Update(int tick)
         {
             for (int i = 0; i < worldObjects.Count; i++)
@@ -111,7 +127,13 @@ namespace Models
                     {
                         if (u is Robots)
                         {
-                            if (racks.Count != 0)
+                            foreach(Model3D model in worldObjects)
+                            {
+                                if(model.type == "rack")
+                                    countRacks++; 
+                            }
+
+                            if (countRacks != 0)
                             {
                                 Robots robot = (Robots)u;
                                 //if (robot.robotMove == null && Inventory.Tasks.Count != 0)
@@ -140,8 +162,11 @@ namespace Models
 
                         else if(u is Model3D)
                         {
-                            Model3D earth = u;
-                            moveEarth(earth);
+                            Model3D model = (Model3D)u;
+                            if(model.type == "light")
+                                model.Move(model.x, model.y, model.z);
+
+                            moveEarth(model);
                         }
 
 
@@ -205,29 +230,6 @@ namespace Models
                 return false;
         }
 
-        //private void GiveTaskToRobot()
-        //{
-        //    int shortestTaskListCount = -1;
-        //    Robots shortestTaskListRobot = null;
-        //    foreach (Model3D model in worldObjects)
-        //    {
-        //        if (model is Robots)
-        //        {
-        //            Robots robot = (Robots)model;
-
-        //            if (shortestTaskListCount == -1)
-        //            {
-        //                shortestTaskListCount = i
-        //            }
-        //        }
-        //    }
-
-        //    if (shortestTaskListRobot != null && shortestTaskListCount != -1)
-        //    {
-        //        shortestTaskListRobot.giveTask();
-        //    }
-        //}
-
         private void DrawRoads(double amountRoads)
         {
             double x = 5, z = 20, width = 82, height = 2; //Starting point and standard values
@@ -244,7 +246,7 @@ namespace Models
             for (int i = 0; i <= amountRoads; i++)
             {
                 drawRoad(startPosition + segment * i, 0, height, width / 2);
-
+                drawLight(startPosition + segment * i, 10, 12, 0, 1.57, 0);
                 for (int j = 0; j <= 10; j++)
                 {
                     if (i == 0 && (j > 2 && j < 9))
@@ -298,15 +300,7 @@ namespace Models
                 worldObjects.Add(synapse);
             }
         }
-
-        private void drawRoad(double x, double z, double width, double height)
-        {
-            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
-            road.needsUpdate = false;
-            road.Transform(width, height, 0);
-            worldObjects.Add(road);
-        }
-
+        
         private void drawNodes()
         {
             foreach (Node node in grid.GetNodes)

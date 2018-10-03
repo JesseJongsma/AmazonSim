@@ -13,18 +13,20 @@ namespace Models
     }
     public class RobotMove : IRobotTask
     {
-        private Node robotLocation; 
+        private Node robotLocation;
         private Task task;
         private Grid grid;
         private Robots robot;
         private Node destination;
-        private bool loaded = false; 
+        RackMove rackmove = new RackMove(); 
+        private bool loaded = false;
+        private bool firstDestinationVisited;
 
         public RobotMove(Task task, Robots robot, Grid grid)
         {
             this.task = task;
             this.robot = robot;
-            this.grid = grid; 
+            this.grid = grid;
         }
 
         public void StartTask(Robots robot)
@@ -59,7 +61,16 @@ namespace Models
         {
             if (this.robot == robot)
             {
-                if (robot.x == task.finalDestination.x && robot.z == task.finalDestination.z)
+                if (robot.x == task.firstDestination.x && robot.z == task.firstDestination.z)
+                {
+                    firstDestinationVisited = true;
+                }
+                if (firstDestinationVisited)
+                {
+                    rackmove.MovingRack(task.getRack, robot);
+                }
+
+                if ((robot.x == task.finialDestination.x && robot.z == task.finialDestination.z) && firstDestinationVisited)
                 {
                     loaded = false;
                     return true;
@@ -78,5 +89,14 @@ namespace Models
         public Node firstDestination;
         public Node finalDestination;
         public Racks getRack;
+    }
+
+    public class RackMove
+    {
+        public void MovingRack(Racks rack, Robots robot)
+        {
+            rack.x = robot.x;
+            rack.z = robot.z; 
+        }
     }
 }
