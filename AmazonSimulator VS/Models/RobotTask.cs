@@ -40,7 +40,7 @@ namespace Models
                 }
                 else if (robotLocation == destination)
                 {
-                    destination = task.finialDestination;
+                    destination = task.finalDestination;
                     robot.InitPaths(robotLocation, destination);
                 }
                 RunTask(robot);
@@ -59,7 +59,7 @@ namespace Models
         {
             if (this.robot == robot)
             {
-                if (robot.x == task.finialDestination.x && robot.z == task.finialDestination.z)
+                if (robot.x == task.finalDestination.x && robot.z == task.finalDestination.z)
                 {
                     loaded = false;
                     return true;
@@ -76,7 +76,7 @@ namespace Models
     public class Task
     {
         public Node firstDestination;
-        public Node finialDestination;
+        public Node finalDestination;
         public Racks getRack;
     }
 }
