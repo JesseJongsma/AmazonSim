@@ -21,7 +21,6 @@ namespace Models
         RackMove rackmove = new RackMove(); 
         private bool loaded = false;
         private bool firstDestinationVisited;
-
         public RobotMove(Task task, Robots robot, Grid grid)
         {
             this.task = task;
