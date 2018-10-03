@@ -11,7 +11,6 @@ namespace Models
         private double stop = 8; 
         private double count = 0;
         private double radius = 0;
-
         public Spaceships(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Spaceship created");
@@ -46,7 +45,6 @@ namespace Models
                 Move(x, height, ss_z);
             }
         }
-
 
         public bool checkCoordinates()
         {

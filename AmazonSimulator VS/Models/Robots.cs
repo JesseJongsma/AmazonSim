@@ -17,7 +17,6 @@ namespace Models
         private Node Start;
         private Node Destination;
         private Grid Grid;
-        private Inventory _Inventory;
         private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. 
         //bool done = false;
 
@@ -25,7 +24,6 @@ namespace Models
         {
             Console.WriteLine("Robot created");
             Grid = world.grid;
-            _Inventory = world.Inventory;
         }
 
         public void InitPaths(Node start, Node destination)
@@ -37,25 +35,18 @@ namespace Models
             AddRoad(Start);
         }
 
-        public void giveTask()
+        public void giveTask(Task task)
         {
-            if (robotMove == null && _Inventory.Tasks.Count != 0)
-            {
-                robotMove = new RobotMove(_Inventory.Tasks.First(), this, Grid);
-                _Inventory.Tasks.RemoveAt(0);
-            }
+            robotMove = new RobotMove(task, this, Grid, '-');
         }
 
         public override bool Update(int tick)
         {
-            giveTask();
-
             if (robotMove != null)
             {
                 if (robotMove.TaskComplete(this))
                 {
                     Console.WriteLine("override bool update");
-                    
                     robotMove = null;
                     return false;
                 }

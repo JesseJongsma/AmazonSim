@@ -10,13 +10,12 @@ namespace Models
         private List<Node> NodesList = new List<Node>();
         private List<ConnectedNodes> ConnectedNodesList = new List<ConnectedNodes>();
 
-        public Node AddNode(double x, double z, string type)
+        public Node AddNode(double x, double z)
         {
             Node Node = new Node();
 
             Node.x = x;
             Node.z = z;
-            Node.type = type;
 
             NodesList.Add(Node);
             return Node;
@@ -84,7 +83,6 @@ namespace Models
     {
         public double x;
         public double z;
-        public string type;
     }
 
     public class ConnectedNodes

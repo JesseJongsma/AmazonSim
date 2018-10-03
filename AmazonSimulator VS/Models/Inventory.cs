@@ -8,22 +8,9 @@ namespace Models
     public class Inventory
     {
         private List<Product> Products = new List<Product>();
-        private List<Product> Orders = new List<Product>();
-        private List<Racks> Racks = new List<Racks>();
-        private World World;
 
-        public List<Task> Tasks = new List<Task>();
-
-        public List<Product> orders { get { return Orders; } }
-
-        public Inventory(World world)
+        public void PromptUser()
         {
-            World = world;
-        }
-
-        public void PromptUser(World world)
-        {
-            this.World = world;
             string productName;
             int amount;
 
@@ -33,53 +20,27 @@ namespace Models
             string input = Console.ReadLine();
             string[] param = input.Split(' ');
 
-            if (param.Count() <= 2)
+            if (param.Count() == 2)
             {
                 productName = param[0];
-                
+                int.TryParse(param[1], out amount);
 
                 Product result = SearchProduct(productName);
-                if (result != null && param[1] != null)
+                if (result != null)
                 {
-                    int.TryParse(param[1], out amount);
                     result.RemoveStock(amount);
                     Console.WriteLine("Ordered {0} of {1}", amount, productName);
                 }
-                else
-                {
-                    Console.WriteLine("{0}, was not found. Do you want to add this item to the invetory? (Y/N)", productName);
-                    string AddProduct = Console.ReadLine();
-                    bool correct = false;
-                    while (!correct)
-                    {
-                        if (AddProduct.ToLower().ToString() == "y")
-                        {
-                            this.AddProduct(productName);
-                            correct = true;
-                        }
-                        else if (AddProduct.ToLower().ToString() == "n")
-                        {
-                            correct = true;
-                        }
-                    }
-                }
             }
-            CheckStock();
-        }
-
-        public void AddTask(Racks rack)
-        {
-            Task newTask = new Task();
-            newTask.firstDestination = rack.currentNode;
-            newTask.finalDestination = GetAvailableNode(rack.currentNode);
-            newTask.getRack = rack;
-            Tasks.Add(newTask);
+            else
+            {
+                Console.WriteLine("Please try again.");
+            }
         }
 
         public void AddProduct(string name)
         {
             Product product = new Product();
-            product.AddStock(product.maxStock);
             SortList(Products);
             int id = 0;
 
@@ -88,8 +49,6 @@ namespace Models
                 id = Products.Last().id + 1;
             }
             product.AddProduct(id, name);
-            Products.Add(product);
-            Orders.Add(product);
         }
 
         public Product RetrieveProduct(Product product)
@@ -101,14 +60,6 @@ namespace Models
             }
             Console.WriteLine("{0} couldn't be found", product.name);
             return null;
-        }
-
-        public void AddStock(Product product, int cargo)
-        {
-            if (RetrieveProduct(product) != null)
-            {
-                product.AddStock(cargo);
-            }
         }
 
         public void RemoveStock(Product product, int cargo)
@@ -129,69 +80,7 @@ namespace Models
                 if (p.stock < p.minStock)
                 {
                     p.AddStock(p.maxStock - p.stock);
-                    orders.Add(p);
                 }
-            }
-        }
-
-        private void MakeTask(string productName)
-        {
-            Task task = new Task();
-            Racks rack = SearchRackByProduct(productName);
-            if (rack != null)
-            {
-                Node availableNode = GetAvailableNode(rack.currentNode);
-                if (availableNode != null)
-                {
-                    task.firstDestination = rack.currentNode;
-                    task.finalDestination = availableNode;
-                    task.getRack = rack;
-                    Tasks.Add(task);
-                }
-            }
-        }
-
-        private Node GetAvailableNode(Node rackNode)
-        {
-            List<Node> getNodes = World.grid.GetNodes;
-            //Node emptyNode = null;
-            string checkNode = (rackNode.type == "cargoNode") ? "storageNode" : "cargoNode";
-
-            for (int i = 0; i < getNodes.Count - 1; i++)
-            {
-                if (getNodes[i].type == checkNode)
-                    for (int j = 0; j <= Racks.Count; j++)
-                    {
-                        if(Racks.Count == 0)
-                            return getNodes[i];
-
-                        if (getNodes[i] != Racks[j].currentNode || Racks.Count == 0)
-                        {
-                            return getNodes[i];
-                        }
-                    }
-            }
-            return null;
-        }
-
-        private Racks SearchRackByProduct(string productName)
-        {
-            Product result = SearchProduct(productName);
-            if (result != null)
-            {
-                foreach (Racks rack in Racks)
-                {
-                    foreach (Product product in rack.contains)
-                    {
-                        if (product.name == productName)
-                            return rack;
-                    }
-                }
-                return null;
-            }
-            else
-            {
-                return null;
             }
         }
 
@@ -204,7 +93,6 @@ namespace Models
                     return p;
                 }
             }
-
             return null;
         }
 

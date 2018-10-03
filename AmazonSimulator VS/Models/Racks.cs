@@ -8,7 +8,7 @@ namespace Models
     public class Racks : Model3D, IUpdatable
     {
         private List<Product> Contains = new List<Product>();
-        public Node currentNode;
+        public Node node;
 
 
         public Racks(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
