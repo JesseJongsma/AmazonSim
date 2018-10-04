@@ -55,7 +55,7 @@ namespace Models
                 if (robotMove.TaskComplete(this))
                 {
                     Console.WriteLine("override bool update");
-                    
+
                     robotMove = null;
                     return false;
                 }
@@ -71,7 +71,6 @@ namespace Models
 
         private List<Node> GeneratePath()
         {
-            //int index = ;
             bool done = false;
             List<Node> path = new List<Node>();
             Road DestinationRoad = GetRoadByNode(Destination);
@@ -122,33 +121,38 @@ namespace Models
         }
 
         private int index = 0;
+        private double nodeX, nodeZ, countX, countZ;
         private List<Node> path;
         public void FollowPath()
         {
             if (path == null)
                 path = GetShortestPath();
 
-            double nodeX = path[index].x;
-            double nodeZ = path[index].z;
 
-            double countX = x;
+            nodeX = path[index].x;
+            nodeZ = path[index].z;
+
+            countX = x;
             countX = countInRange(countX, nodeX, Speed);
 
-            double countZ = z;
+            countZ = z;
             countZ = countInRange(countZ, nodeZ, Speed);
 
             Move(countX, 0.05, countZ);
-            Console.WriteLine("Robot is at: X = {0}, Y = {1}, Z = {2}", x, y, z);
+            if (x == nodeX && z == nodeZ)
+            {
+                if (index == path.Count -1)
+                {
+                    index = 0;
+                    Reset();
+                }
+                else
+                {
+                    if (index != path.Count - 1)
+                        index++;
+                }
+            }
 
-            if ((x == nodeX && z == nodeZ) && Destination != path[index])
-            {
-                index++;
-            }
-            else if ((x == nodeX && z == nodeZ) && Destination == path[index])
-            {
-                index = 0;
-                Reset();
-            }
         }
 
         private void RoadStackAdd(Node newNode)

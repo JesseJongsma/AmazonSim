@@ -20,16 +20,17 @@
         var radius = 0, height = 0;
         var i = 100;
         var cone, earth, rack, load = false;
-        var light = false; 
+        var light = false;
         var DEBUG = true;
 
-        
+
         window.onload = function () {
 
             var cameraControls;
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
             var radius = 0;
+            var label;
 
             function init() {
                 viewCamera();
@@ -43,7 +44,7 @@
 
                 //The light is drawn
                 scene.add(drawScene.drawLight(-10, 200, 490, 1, 0, 0xffffff, "pointLight"));
-               
+
                 //The plane is drawn
                 scene.add(drawScene.drawPlane(101, 50, 0, 0, 0, 0xffffff));
 
@@ -94,17 +95,17 @@
                 scene.add(drawScene.drawWall(4, 8, 1, -35, 4, 12.5, blue));
                 scene.add(drawScene.drawWall(4, 8, 1, -35, 4, -12.5, blue));
             }
-            
+
             function drawCone(x, y, z, rad = null) {
 
-                if (radius <= 4) 
+                if (radius <= 4)
                     radius = radius + 0.2;
 
                 // Overwrite if optional arguments are given
-                if (rad != null) 
+                if (rad != null)
                     radius = rad;
 
-                if (cone != null) 
+                if (cone != null)
                     clearScene(cone);
 
                 scene.add(drawScene.drawCone(x, y, z, radius, 0x00ff00));
@@ -133,7 +134,7 @@
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data)
                 if (command.command === "update") {
-                    var commandParam = command.parameters; 
+                    var commandParam = command.parameters;
                     if (Object.keys(worldObjects).indexOf(commandParam.guid) < 0) {
                         switch (commandParam.type) {
                             //Trying to load robot
@@ -180,6 +181,7 @@
                                     drawScene.drawOBJModel("/Objects/", "Rack.obj", "/Objects/", "Rack.mtl", (obj) => {
                                         obj.scale.set(3, 3, 3);
                                         worldObjects[commandParam.guid] = obj;
+                                        
                                         scene.add(obj);
                                         rack = false;
                                     });
@@ -195,7 +197,13 @@
                             //Trying to load node
                             case "node":
                                 console.log("NODE");
-                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, 0x00ff00, false));
+                                var colour = null;
+                                if (commandParam.attr == "storageNode")
+                                    colour = 0x00ff00;
+                                else if (commandParam.attr == "cargoNode")
+                                    colour = 0x0000ff;
+
+                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, colour, false));
                                 break;
 
                             //Trying to load synapse
@@ -235,7 +243,7 @@
                     }
                 }
             }
-
+            
             init();
             console.log(worldObjects);
             animate();
