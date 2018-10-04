@@ -134,22 +134,22 @@ namespace Models
             }
         }
 
-        private void MakeTask(string productName)
-        {
-            Task task = new Task();
-            Racks rack = SearchRackByProduct(productName);
-            if (rack != null)
-            {
-                Node availableNode = GetAvailableNode(rack.currentNode);
-                if (availableNode != null)
-                {
-                    task.firstDestination = rack.currentNode;
-                    task.finalDestination = availableNode;
-                    task.getRack = rack;
-                    Tasks.Add(task);
-                }
-            }
-        }
+        //private void MakeTask(string productName)
+        //{
+        //    Task task = new Task();
+        //    Racks rack = SearchRackByProduct(productName);
+        //    if (rack != null)
+        //    {
+        //        Node availableNode = GetAvailableNode(rack.currentNode);
+        //        if (availableNode != null)
+        //        {
+        //            task.firstDestination = rack.currentNode;
+        //            task.finalDestination = availableNode;
+        //            task.getRack = rack;
+        //            Tasks.Add(task);
+        //        }
+        //    }
+        //}
 
         private Node GetAvailableNode(Node rackNode)
         {
@@ -159,14 +159,18 @@ namespace Models
 
             for (int i = 0; i < getNodes.Count - 1; i++)
             {
-                if (getNodes[i].type == checkNode)
+                if (getNodes[i].type == checkNode && getNodes[i].taken == false)
                     for (int j = 0; j <= Racks.Count; j++)
                     {
-                        if(Racks.Count == 0)
+                        if (Racks.Count == 0)
+                        {
+                            getNodes[i].taken = true; 
                             return getNodes[i];
+                        }
 
                         if (getNodes[i] != Racks[j].currentNode || Racks.Count == 0)
                         {
+                            getNodes[i].taken = true;
                             return getNodes[i];
                         }
                     }

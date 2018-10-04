@@ -63,6 +63,7 @@ namespace Models
                 if (robot.x == task.firstDestination.x && robot.z == task.firstDestination.z)
                 {
                     firstDestinationVisited = true;
+                    
                 }
                 if (firstDestinationVisited)
                 {

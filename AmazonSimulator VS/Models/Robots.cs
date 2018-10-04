@@ -12,6 +12,7 @@ namespace Models
         private List<Node> UnVisited = new List<Node>();
         private List<Road> AllRoads = new List<Road>();
         private List<Road> RoadStack = new List<Road>();
+        private List<Model3D> worldObjects = new List<Model3D>();
         public RobotMove robotMove = null;
 
         private Node Start;
@@ -26,6 +27,7 @@ namespace Models
             Console.WriteLine("Robot created");
             Grid = world.grid;
             _Inventory = world.Inventory;
+            worldObjects = world.worldObjects; 
         }
 
         public void InitPaths(Node start, Node destination)
@@ -37,12 +39,47 @@ namespace Models
             AddRoad(Start);
         }
 
+        private Robots destined;
+        private double closestTo; 
         public void giveTask()
         {
-            if (robotMove == null && _Inventory.Tasks.Count != 0)
+            if (_Inventory.Tasks.Count != 0)
             {
-                robotMove = new RobotMove(_Inventory.Tasks.First(), this, Grid);
-                _Inventory.Tasks.RemoveAt(0);
+                //Sets for every robot the distance to the rack
+                foreach (Model3D model3d in worldObjects)
+                {
+                    if (model3d is Robots)
+                    {
+                        Robots robot = (Robots)model3d;
+                        string closestToXString = Convert.ToString(robot.x - _Inventory.Tasks.First().getRack.x);
+                        double closestToX = Convert.ToDouble(closestToXString.Replace("-", ""));
+                        string closestToZString = Convert.ToString(robot.z - _Inventory.Tasks.First().getRack.z);
+                        double closestToZ = Convert.ToDouble(closestToZString.Replace("-", ""));
+                        robot.closestTo = closestToX + closestToZ;
+                    }
+                }
+
+                //Checking which robot is the closest 
+                foreach(Model3D model3d in worldObjects)
+                {
+                    if(model3d is Robots)
+                    {
+                        Robots robot = (Robots)model3d;
+                        if (robot.closestTo < this.closestTo || robot.closestTo == this.closestTo)
+                        {
+                            this.closestTo = robot.closestTo; 
+                            destined = robot;
+                        }
+                    }
+                }
+
+                //Is giving the robot the task
+                if (robotMove == null && destined == this)
+                {
+                    robotMove = new RobotMove(_Inventory.Tasks.First(), this, Grid);
+                    _Inventory.Tasks.RemoveAt(0);
+                }
+                destined = null;
             }
         }
 

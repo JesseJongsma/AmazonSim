@@ -251,8 +251,10 @@ namespace Models
                 {
                     if (i == 0 && (j > 2 && j < 9))
                         type = "cargoNode";
-                    else
+                    else if (i != 0 && (j > 0 && j < 10))
                         type = "storageNode";
+                    else
+                        type = "turnNode";
 
                     Node rackNode = grid.AddNode(startPosition + segment * i, 20 - 40 / 10 * j, type);
 
