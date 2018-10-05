@@ -16,6 +16,7 @@ namespace Models {
         private double _depth = 0;
 
         public string type { get; }
+        public string attr;
         public Guid guid { get; }
         public double x { get { return _x; } set { _x = value; } }
         public double y { get { return _y; } set { _y = value; } }

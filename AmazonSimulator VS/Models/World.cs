@@ -11,7 +11,6 @@ namespace Models
         public List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
-        public List<Racks> racks = new List<Racks>();
         public Inventory Inventory;
         private bool tasksLoaded = false;
         private bool checkCoordinateShip = false;
@@ -89,8 +88,6 @@ namespace Models
             worldObjects.Add(road);
         }
 
-      
-
         public IDisposable Subscribe(IObserver<Command> observer)
         {
             if (!observers.Contains(observer))
@@ -118,7 +115,7 @@ namespace Models
             }
         }
 
-        private int countRacks = 0; 
+        private int countRacks = 0;
         public bool Update(int tick)
         {
             for (int i = 0; i < worldObjects.Count; i++)
@@ -134,10 +131,10 @@ namespace Models
                     {
                         if (u is Robots)
                         {
-                            foreach(Model3D model in worldObjects)
+                            foreach (Model3D model in worldObjects)
                             {
-                                if(model.type == "rack")
-                                    countRacks++; 
+                                if (model.type == "rack")
+                                    countRacks++;
                             }
 
                             if (countRacks != 0)
@@ -174,7 +171,7 @@ namespace Models
                         else if(u is Model3D)
                         {
                             Model3D model = (Model3D)u;
-                            if(model.type == "light")
+                            if (model.type == "light")
                                 model.Move(model.x, model.y, model.z);
 
                             moveEarth(model);
@@ -211,10 +208,10 @@ namespace Models
 
 
         private int loaded = 0;
-        private int i = 3;
+        private Racks rack = null;
         private bool ReceiveCargo(Spaceships spaceship)
         {
-            Racks rack = null;
+            bool occupied = false;
             if (spaceship.checkCoordinates())
             {
                 loaded++;
@@ -222,18 +219,39 @@ namespace Models
 
             if (10 <= loaded)
             {
-                for (int j = 0; j <= Inventory.orders.Count - 1; j++)
+                while (Inventory.orders.Count != 0)
                 {
-                    if (j % 5 == 0)
+                    if (rack == null)
                     {
-                        rack = CreateRack(grid.GetNodes[i]);
+                        for (int i = 3; i < 8; i++)
+                        {
+                            if (!grid.GetNodes[i].occupied)
+                            {
+                                rack = CreateRack(grid.GetNodes[i]);
+                                Inventory.AddRack(rack);
+                                grid.GetNodes[i].occupied = true;
+                                break;
+                            }
+                        }
+
                     }
-                    rack.AddProduct(Inventory.orders[j]);
-                    Inventory.AddTask(rack);
-                    Inventory.orders.Remove(Inventory.orders[j]);
+
+                    if (rack.contains.Count < 5)
+                    {
+                        rack.AddProduct(Inventory.orders.First());
+
+                        Inventory.orders.Remove(Inventory.orders.First());
+                    }
+                    else
+                    {
+                        Inventory.AddTask(rack);
+                        rack = null;
+                    }
                 }
-                
-                i++;
+                if (rack != null)
+                    Inventory.AddTask(rack);
+
+                rack = null;
                 loaded = 0;
                 return true;
             }
@@ -244,7 +262,7 @@ namespace Models
         private void DrawRoads(double amountRoads)
         {
             double x = 5, z = 20, width = 82, height = 2; //Starting point and standard values
-            string type;
+            string type = "";
 
             drawRoad(x, z, width, height);
             drawRoad(x, -z, width, height);
@@ -260,12 +278,11 @@ namespace Models
                 drawLight(startPosition + segment * i, 10, 12, 0, 1.57, 0);
                 for (int j = 0; j <= 10; j++)
                 {
-                    if (i == 0 && (j > 2 && j < 9))
+                    type = "";
+                    if (i == 0 && (j > 2 && j < 8))
                         type = "cargoNode";
-                    else if (i != 0 && (j > 0 && j < 10))
+                    else if (i > 0 && (j > 0 && j < 10))
                         type = "storageNode";
-                    else
-                        type = "turnNode";
 
                     Node rackNode = grid.AddNode(startPosition + segment * i, 20 - 40 / 10 * j, type);
 
@@ -297,7 +314,6 @@ namespace Models
                         grid.AddConnection(grid.GetNodes[i], grid.GetNodes[i + 11]);
                     }
                 }
-
             }
 
             for (int i = 1; i < grid.GetNodes.Count; i++)
@@ -313,12 +329,13 @@ namespace Models
                 worldObjects.Add(synapse);
             }
         }
-        
+
         private void drawNodes()
         {
             foreach (Node node in grid.GetNodes)
             {
-                CreateModel3D("node", node.x, 0, node.z);
+                Model3D model = CreateModel3D("node", node.x, 0, node.z);
+                model.attr = node.type;
             }
         }
     }

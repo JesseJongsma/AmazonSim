@@ -18,7 +18,7 @@ namespace Models
         private Grid grid;
         private Robots robot;
         private Node destination;
-        RackMove rackmove = new RackMove(); 
+        private RackMove rackmove = new RackMove(); 
         private bool loaded = false;
         private bool firstDestinationVisited;
         public RobotMove(Task task, Robots robot, Grid grid)
@@ -39,7 +39,7 @@ namespace Models
                     destination = task.firstDestination;
                     robot.InitPaths(robotLocation, destination);
                 }
-                else if (robotLocation == destination)
+                else
                 {
                     destination = task.finalDestination;
                     robot.InitPaths(robotLocation, destination);
@@ -63,7 +63,7 @@ namespace Models
                 if (robot.x == task.firstDestination.x && robot.z == task.firstDestination.z)
                 {
                     firstDestinationVisited = true;
-                    
+                    task.firstDestination.occupied = false;
                 }
                 if (firstDestinationVisited)
                 {
@@ -72,6 +72,8 @@ namespace Models
 
                 if ((robot.x == task.finalDestination.x && robot.z == task.finalDestination.z) && firstDestinationVisited)
                 {
+                    task.getRack.currentNode = grid.GetNodeByCoordinates(task.finalDestination.x, task.finalDestination.z);
+                    firstDestinationVisited = false;
                     loaded = false;
                     return true;
                 }
@@ -96,7 +98,7 @@ namespace Models
         public void MovingRack(Racks rack, Robots robot)
         {
             rack.x = robot.x;
-            rack.z = robot.z; 
+            rack.z = robot.z;
         }
     }
 }

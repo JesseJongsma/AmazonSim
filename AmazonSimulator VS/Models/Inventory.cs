@@ -36,22 +36,22 @@ namespace Models
             if (param.Count() <= 2)
             {
                 productName = param[0];
-                
 
                 Product result = SearchProduct(productName);
-                if (result != null && param[1] != null)
+                if (result != null && param.Count() == 2)
                 {
                     int.TryParse(param[1], out amount);
+                    AddTask(SearchRackByProduct(productName));
                     result.RemoveStock(amount);
                     Console.WriteLine("Ordered {0} of {1}", amount, productName);
                 }
-                else
+                else if (param.Count() == 1)
                 {
-                    Console.WriteLine("{0}, was not found. Do you want to add this item to the invetory? (Y/N)", productName);
-                    string AddProduct = Console.ReadLine();
                     bool correct = false;
                     while (!correct)
                     {
+                        Console.WriteLine("{0}, was not found. Do you want to add this item to the invetory? (Y/N)", productName);
+                        string AddProduct = Console.ReadLine();
                         if (AddProduct.ToLower().ToString() == "y")
                         {
                             this.AddProduct(productName);
@@ -72,8 +72,20 @@ namespace Models
             Task newTask = new Task();
             newTask.firstDestination = rack.currentNode;
             newTask.finalDestination = GetAvailableNode(rack.currentNode);
+
+            //if (newTask.firstDestination != newTask.finalDestination)
+            //{
+
+            //}
+            newTask.firstDestination.occupied = false;
+            newTask.finalDestination.occupied = true;
             newTask.getRack = rack;
             Tasks.Add(newTask);
+        }
+
+        public void AddRack(Racks rack)
+        {
+            Racks.Add(rack);
         }
 
         public void AddProduct(string name)
@@ -134,23 +146,6 @@ namespace Models
             }
         }
 
-        //private void MakeTask(string productName)
-        //{
-        //    Task task = new Task();
-        //    Racks rack = SearchRackByProduct(productName);
-        //    if (rack != null)
-        //    {
-        //        Node availableNode = GetAvailableNode(rack.currentNode);
-        //        if (availableNode != null)
-        //        {
-        //            task.firstDestination = rack.currentNode;
-        //            task.finalDestination = availableNode;
-        //            task.getRack = rack;
-        //            Tasks.Add(task);
-        //        }
-        //    }
-        //}
-
         private Node GetAvailableNode(Node rackNode)
         {
             List<Node> getNodes = World.grid.GetNodes;
@@ -159,21 +154,9 @@ namespace Models
 
             for (int i = 0; i < getNodes.Count - 1; i++)
             {
-                if (getNodes[i].type == checkNode && getNodes[i].taken == false)
-                    for (int j = 0; j <= Racks.Count; j++)
-                    {
-                        if (Racks.Count == 0)
-                        {
-                            getNodes[i].taken = true; 
-                            return getNodes[i];
-                        }
-
-                        if (getNodes[i] != Racks[j].currentNode || Racks.Count == 0)
-                        {
-                            getNodes[i].taken = true;
-                            return getNodes[i];
-                        }
-                    }
+                if (getNodes[i].type == checkNode && !getNodes[i].occupied)
+                    return getNodes[i];
+                    
             }
             return null;
         }

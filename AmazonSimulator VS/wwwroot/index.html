@@ -30,6 +30,7 @@
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
             var radius = 0;
+            var label;
 
             function init() {
                 viewCamera();
@@ -180,6 +181,7 @@
                                     drawScene.drawOBJModel("/Objects/", "Rack.obj", "/Objects/", "Rack.mtl", (obj) => {
                                         obj.scale.set(3, 3, 3);
                                         worldObjects[commandParam.guid] = obj;
+                                        
                                         scene.add(obj);
                                         rack = false;
                                     });
@@ -195,7 +197,13 @@
                             //Trying to load node
                             case "node":
                                 console.log("NODE");
-                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, 0x00ff00, false));
+                                var colour = null;
+                                if (commandParam.attr == "storageNode")
+                                    colour = 0x00ff00;
+                                else if (commandParam.attr == "cargoNode")
+                                    colour = 0x0000ff;
+
+                                scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, colour, false));
                                 break;
 
                             //Trying to load synapse
@@ -247,7 +255,7 @@
                     }
                 }
             }
-
+            
             init();
             console.log(worldObjects);
             animate();

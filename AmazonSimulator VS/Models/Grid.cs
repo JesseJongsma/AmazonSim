@@ -85,7 +85,7 @@ namespace Models
         public double x;
         public double z;
         public string type;
-        public bool taken; 
+        public bool occupied = false;
     }
 
     public class ConnectedNodes
