@@ -14,7 +14,7 @@ namespace Models
         private List<Road> RoadStack = new List<Road>();
         private List<Model3D> worldObjects = new List<Model3D>();
         public RobotMove robotMove = null;
-
+        
         private Node Start;
         private Node Destination;
         private Grid Grid;
@@ -51,11 +51,9 @@ namespace Models
                     if (model3d is Robots)
                     {
                         Robots robot = (Robots)model3d;
-                        string closestToXString = Convert.ToString(robot.x - _Inventory.Tasks.First().getRack.x);
-                        double closestToX = Convert.ToDouble(closestToXString.Replace("-", ""));
-                        string closestToZString = Convert.ToString(robot.z - _Inventory.Tasks.First().getRack.z);
-                        double closestToZ = Convert.ToDouble(closestToZString.Replace("-", ""));
-                        robot.closestTo = closestToX + closestToZ;
+                        double closestToX = robot.x - _Inventory.Tasks.First().getRack.x;
+                        double closestToZ = robot.z - _Inventory.Tasks.First().getRack.z;
+                        robot.closestTo = Math.Sqrt(Math.Pow(closestToX, 2) + Math.Pow(closestToZ, 2));
                     }
                 }
 
@@ -105,7 +103,7 @@ namespace Models
             return true;
 
         }
-
+        
         private List<Node> GeneratePath()
         {
             //int index = ;
