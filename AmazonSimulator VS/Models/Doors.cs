@@ -13,7 +13,7 @@ namespace Models
         private double count; 
 
         //Summary of the constructor and more is found in Model3D.cs
-        public Doors(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
+        public Doors(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(world, type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Doors created");
             worldObjects = world.worldObjects;
