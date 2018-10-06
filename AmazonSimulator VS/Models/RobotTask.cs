@@ -63,10 +63,14 @@ namespace Models
                 if (robot.x == task.firstDestination.x && robot.z == task.firstDestination.z)
                 {
                     firstDestinationVisited = true;
+                    task.getRack.currentNode.occupied = false;
                     task.firstDestination.occupied = false;
+                    task.finalDestination.occupied = true;
+                    task.getRack.moving = true;
                 }
                 if (firstDestinationVisited)
                 {
+                    task.getRack.moving = true;
                     rackmove.MovingRack(task.getRack, robot);
                 }
 
@@ -74,6 +78,7 @@ namespace Models
                 {
                     task.getRack.currentNode = grid.GetNodeByCoordinates(task.finalDestination.x, task.finalDestination.z);
                     firstDestinationVisited = false;
+                    task.getRack.moving = false;
                     loaded = false;
                     return true;
                 }

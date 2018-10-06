@@ -8,6 +8,8 @@ namespace Models
 {
     public class World : IObservable<Command>, IUpdatable
     {
+        const bool DEBUG = false;
+
         public List<Model3D> worldObjects = new List<Model3D>();
         private List<IObserver<Command>> observers = new List<IObserver<Command>>();
         public Grid grid = new Grid();
@@ -21,10 +23,13 @@ namespace Models
             CreateDoors(-35, 4, 12.5);
             CreateDoors(-35, 4, -12.5);
             Inventory = new Inventory(this);
-            Thread inventoryThread = new Thread(() => InventoryPrompt(Inventory));
-            inventoryThread.Start();
+            Thread inventoryPromptThread = new Thread(() => InventoryPrompt(Inventory));
+            inventoryPromptThread.Start();
 
-            for (int i = 0; i < 3; i++)
+            Thread inventoryCheckStockThread = new Thread(() => InventoryCheck(Inventory));
+            inventoryCheckStockThread.Start();
+
+            for (int i = 0; i < 1; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
             }
@@ -32,7 +37,7 @@ namespace Models
             CreateModel3D("earth", 500, 10, 500);
         }
 
-        public void InventoryPrompt(Inventory inv)
+        private void InventoryPrompt(Inventory inv)
         {
             while (true)
             {
@@ -54,6 +59,15 @@ namespace Models
             return door;
         }
 
+        private void InventoryCheck(Inventory inv)
+        {
+            while (true)
+            {
+                Thread.Sleep(5000);
+                inv.CheckStock();
+            }
+        }
+
         private Robots CreateRobot(double x, double y, double z)
         {
             Robots robot = new Robots(this, "robot", x, y, z, 0, 0, 0);
@@ -63,21 +77,22 @@ namespace Models
 
         private Spaceships CreateSpaceShip(double x, double y, double z)
         {
-            Spaceships ship = new Spaceships("spaceship", x, y, z, 0, 0, 0);
+            Spaceships ship = new Spaceships(this, "spaceship", x, y, z, 0, 0, 0);
+            ship.reset();
             worldObjects.Add(ship);
             return ship;
         }
 
         private Model3D CreateModel3D(string type, double x, double y, double z)
         {
-            Model3D model = new Model3D(type, x, y, z, 0, 0, 0);
+            Model3D model = new Model3D(this, type, x, y, z, 0, 0, 0);
             worldObjects.Add(model);
             return model;
         }
 
         private Racks CreateRack(Node node)
         {
-            Racks rack = new Racks("rack", node.x, 2, node.z, -0.05, -1.42, 0);
+            Racks rack = new Racks(this, "rack", node.x, 2, node.z, -0.05, -1.42, 0);
             rack.currentNode = node;
             worldObjects.Add(rack);
             return rack;
@@ -85,13 +100,13 @@ namespace Models
 
         private void drawLight(double x, double y, double z, double r_x, double r_y, double r_z)
         {
-            Model3D light = new Model3D("light", x, y, z, r_x, r_y, r_z);
+            Model3D light = new Model3D(this, "light", x, y, z, r_x, r_y, r_z);
             worldObjects.Add(light);
         }
 
         private void drawRoad(double x, double z, double width, double height)
         {
-            Model3D road = new Model3D("road", x, 0, z, 0, 0, 0);
+            Model3D road = new Model3D(this, "road", x, 0, z, 0, 0, 0);
             road.Transform(width, height, 0);
             worldObjects.Add(road);
         }
@@ -144,16 +159,49 @@ namespace Models
                         else if (u is Spaceships)
                         {
                             Spaceships spaceship = (Spaceships)u;
-                            //Calls the methode spaceship.moveSpaceship so the spaceship keeps moving.
-                            spaceship.moveSpaceship();
-                            
-                            //The methode ReceiveCargo returns a bool true or false and set this in checkCoordinateShip.
-                            checkCoordinateShip = ReceiveCargo(spaceship);
+                            //if (spaceship.z == 0)
+                            //    spaceship.reset();
+                            spaceship.needsUpdate = true;
+                            if (Inventory.shipments.Count() > 0 && (spaceship.z <= 8 && spaceship.z >= -8))
+                            {
+                                //spaceship.moveSpaceship();
+                                ReceiveShipment(spaceship);
+                            }
+
+                            if (Inventory.orders.Count() > 0)
+                            {
+
+                                checkCoordinateShip = ReceiveCargo(spaceship);
+                            }
+
+                            if ((Inventory.orders.Count() > 0 || Inventory.shipments.Count() > 0) || (spaceship.z > -140 ^ spaceship.z == 125))
+                                spaceship.moveSpaceship();
+                            if (spaceship.z == -139 && spaceship.cargo.Count() > 0)
+                            {
+                                spaceship.cargo.ForEach(x =>
+                                    Console.WriteLine("{0} of {1} was delivered to you", x.stock, x.name));
+
+                                spaceship.cargo.Clear();
+                            }
+
+
+                            //if( || (spaceship.z > -140 ^ spaceship.z == 125) )
+
                         }
                         else if (u is Racks)
                         {
                             Racks rack = (Racks)u;
                             rack.moveRack();
+
+                            if (rack.attr == "deleted")
+                            {
+                                worldObjects.Remove(rack);
+                                Inventory.RemoveRack(rack);
+                            }
+                            if (checkCoordinateShip == true && tasksLoaded == false)
+                            {
+                                tasksLoaded = true;
+                            }
                         }
 
                         else if (u is Doors)
@@ -232,7 +280,6 @@ namespace Models
                                 break;
                             }
                         }
-
                     }
 
                     if (rack.contains.Count < 5)
@@ -256,6 +303,36 @@ namespace Models
             }
             else
                 return false;
+        }
+
+        private void ReceiveShipment(Spaceships spaceship)
+        {
+            for (int i = 0; i <= Inventory.shipments.Count() - 1; i++)
+            {
+                for (int j = 0; j <= Inventory.racks.Count() - 1; j++)
+                {
+                    if (Inventory.racks[j].currentNode.type == "cargoNode" && !Inventory.racks[j].moving && !Inventory.orders.Contains(Inventory.shipments[i]))
+                    {
+                        for (int k = 0; k <= Inventory.racks[j].contains.Count() - 1; k++)
+                        {
+                            if (Inventory.racks[j].contains[k].id == Inventory.shipments[i].id)
+                            {
+                                spaceship.AddCargo(Inventory.shipments[i]);
+                                Task task = Inventory.racks[j].RemoveStock(Inventory.racks[j].contains[k], Inventory.shipments[i].stock);
+                                if (task != null)
+                                    Inventory.Tasks.Add(task);
+
+                                Inventory.shipments.Remove(Inventory.shipments[i]);
+                            }
+                        }
+                        if (Inventory.racks[j].contains.Count() == 0)
+                        {
+                            Inventory.racks[j].currentNode.occupied = false;
+                            Inventory.racks[j].attr = "deleted";
+                        }
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -292,8 +369,10 @@ namespace Models
                 }
             }
 
-            drawNodes();
+
             addConnections();
+            if (DEBUG)
+                drawNodes();
             Console.WriteLine("Loading road...");
         }
 
@@ -327,12 +406,7 @@ namespace Models
                     grid.AddConnection(grid.GetNodes[i - 1], grid.GetNodes[i]);
             }
 
-            foreach (ConnectedNodes connectedNodes in grid.GetConnectedNodes)
-            {
-                Model3D synapse = CreateModel3D("synapse", connectedNodes.Source.x, 0, connectedNodes.Source.z);
-                synapse.Transform(connectedNodes.Destination.x, 0, connectedNodes.Destination.z);
-                worldObjects.Add(synapse);
-            }
+
         }
 
         /// <summary>
@@ -344,6 +418,13 @@ namespace Models
             {
                 Model3D model = CreateModel3D("node", node.x, 0, node.z);
                 model.attr = node.type;
+            }
+
+            foreach (ConnectedNodes connectedNodes in grid.GetConnectedNodes)
+            {
+                Model3D synapse = CreateModel3D("synapse", connectedNodes.Source.x, 0, connectedNodes.Source.z);
+                synapse.Transform(connectedNodes.Destination.x, 0, connectedNodes.Destination.z);
+                worldObjects.Add(synapse);
             }
         }
     }

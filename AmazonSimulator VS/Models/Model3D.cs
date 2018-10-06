@@ -15,6 +15,8 @@ namespace Models {
         private double _height = 0;
         private double _depth = 0;
 
+        protected World world;
+
         public string type { get; }
         public string attr;
         public Guid guid { get; }
@@ -40,7 +42,8 @@ namespace Models {
         /// <param name="rotationX">Sets the rotation x in radians of the model</param>
         /// <param name="rotationY">Sets the rotation y in radians of the model</param>
         /// <param name="rotationZ">Sets the rotation z in radians of the model</param>
-        public Model3D(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) {
+        public Model3D(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) {
+            this.world = world;
             this.type = type;
             this.guid = Guid.NewGuid();
 
