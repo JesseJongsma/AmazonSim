@@ -19,7 +19,7 @@
         var drawScene = new DrawScene(scene);
         var radius = 0, height = 0;
         var i = 100;
-        var cone, earth, rack, load = false;
+        var cone, earth, rack, load, door = false;
         var light = false;
         var DEBUG = true;
 
@@ -81,7 +81,7 @@
 
             function loadStorage() {
                 var grey = 0x808080;
-                var blue = 0x191970;
+                //var blue = 0x191970;
 
                 //Long wall
                 scene.add(drawScene.drawWall(1, 8, 25, -50, 4, 0, grey));
@@ -92,8 +92,8 @@
                 scene.add(drawScene.drawWall(3, 8, 1, -31.5, 4, -12.5, grey));
                 scene.add(drawScene.drawWall(13, 8, 1, -43.5, 4, -12.5, grey));
                 //Door
-                scene.add(drawScene.drawWall(4, 8, 1, -35, 4, 12.5, blue));
-                scene.add(drawScene.drawWall(4, 8, 1, -35, 4, -12.5, blue));
+                //scene.add(drawScene.drawWall(4, 8, 1, -35, 4, 12.5, 0x191970));
+                //scene.add(drawScene.drawWall(4, 8, 1, -35, 4, -12.5, blue));
             }
 
             function drawCone(x, y, z, rad = null) {
@@ -234,7 +234,7 @@
                             //Trying to load light
                             case "light":
                                 if (!light) {
-                                    console.log("Light");
+                                    console.log("LOADING FLUORESCENT_TUBE");
                                     light = true;
                                     scene.add(drawScene.drawLight(commandParam.x, commandParam.y, 0, 1, 100, 0xffffff, "pointLight"));
                                     drawScene.drawOBJModel("/Objects/", "Fluorescent_tube.obj", "/Objects/", "Fluorescent_tube.mtl", (obj) => {
@@ -243,6 +243,18 @@
                                         scene.add(obj);
                                         light = false;
                                     });
+                                }
+                                break;
+
+                            //Trying to load door
+                            case "door":
+                                if (!door) {
+                                    door = true; 
+                                    console.log("LOADING DOOR");
+                                    var wall = drawScene.drawWall(4, 8, 1, commandParam.x, commandParam.y, commandParam.z, 0x191970);
+                                    worldObjects[commandParam.guid] = wall;
+                                    scene.add(wall);
+                                    door = false; 
                                 }
                                 break;
                         }

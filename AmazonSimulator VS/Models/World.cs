@@ -20,7 +20,8 @@ namespace Models
         public World()
         {
             DrawRoads(2); // Max 6 roads
-
+            CreateDoors(-35, 4, 12.5);
+            CreateDoors(-35, 4, -12.5);
             Inventory = new Inventory(this);
             Thread inventoryPromptThread = new Thread(() => InventoryPrompt(Inventory));
             inventoryPromptThread.Start();
@@ -28,7 +29,7 @@ namespace Models
             Thread inventoryCheckStockThread = new Thread(() => InventoryCheck(Inventory));
             inventoryCheckStockThread.Start();
 
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < 1; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
             }
@@ -42,6 +43,12 @@ namespace Models
             {
                 inv.PromptUser(this);
             }
+        }
+        private Doors CreateDoors(double x, double y, double z)
+        {
+            Doors door = new Doors(this, "door", x, y, z, 0, 0, 0);
+            worldObjects.Add(door);
+            return door;
         }
 
         private void InventoryCheck(Inventory inv)
@@ -148,8 +155,6 @@ namespace Models
                             if (countRacks != 0)
                             {
                                 Robots robot = (Robots)u;
-                                //if (robot.robotMove == null && Inventory.Tasks.Count != 0)
-                                //    robot.giveTask(addTask(robot));
                                 robot.Update(tick);
                             }
                         }
@@ -201,7 +206,13 @@ namespace Models
                             }
                         }
 
-                        else if (u is Model3D)
+                        else if (u is Doors)
+                        {
+                            Doors door = (Doors)u;
+                            door.Update(tick);
+                        }
+
+                        else if(u is Model3D)
                         {
                             Model3D model = (Model3D)u;
                             if (model.type == "light")

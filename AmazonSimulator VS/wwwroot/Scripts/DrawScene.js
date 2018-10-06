@@ -48,7 +48,7 @@
         switch (light) {
             case "pointLight":
                 var light = new THREE.PointLight(setColor, intensity, distance);
-                this.drawLensflare(light);
+                this.drawLensflare(light)
                 light.position.set(x, y, z);
                 return light;
                 break;
