@@ -11,8 +11,11 @@ namespace Models
         private double stop = 8; 
         private double count = 0;
         private double radius = 0;
+        private List<Product> Cargo = new List<Product>();
 
-        public Spaceships(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
+        public List<Product> cargo { get { return Cargo; } }
+
+        public Spaceships(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(world, type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Spaceship created");
         }
@@ -37,13 +40,11 @@ namespace Models
                     ss_z -= 0.5;
                     count = 0;
                 }
-                    
             }
 
             else // reset the spaceship to the initial position
             {
-                ss_z = 125;
-                Move(x, height, ss_z);
+                reset();
             }
         }
 
@@ -56,6 +57,17 @@ namespace Models
             }
             else
                 return false;
+        }
+
+        public void reset()
+        {
+            ss_z = 125;
+            Move(x, height, ss_z);
+        }
+
+        public void AddCargo(Product product)
+        {
+            Cargo.Add(product);
         }
     }
 }

@@ -175,17 +175,36 @@
 
                             //Trying to load rack
                             case "rack":
+                                console.log(command);
+
                                 if (!rack) {
                                     console.log("TRYING TO LOAD THE RACK");
                                     rack = true;
                                     drawScene.drawOBJModel("/Objects/", "Rack.obj", "/Objects/", "Rack.mtl", (obj) => {
                                         obj.scale.set(3, 3, 3);
                                         worldObjects[commandParam.guid] = obj;
-                                        
+                                        console.log(obj);
                                         scene.add(obj);
                                         rack = false;
                                     });
+                                    
                                 }
+
+                                //if (commandParam.attr == "deleted") {
+                                //    console.log("First if");
+                                //    for (var obj in worldObjects) {
+                                //        console.log("obj:");
+                                //        console.log(obj);
+                                //        console.log("commandParam.guid:");
+                                //        console.log(commandParam.guid);
+                                //        if (obj == commandParam.guid) {
+                                //            console.log("TRYING TO DELETE:");
+                                //            console.log(obj);
+                                //            console.log(commandParam)
+                                //            scene.remove(obj);
+                                //        }
+                                //    }
+                                //}
                                 break;
 
                             //Trying to load road
@@ -240,6 +259,14 @@
                         object.rotation.z = commandParam.rotationZ;
 
                         checkCone(commandParam);
+                        //console.log(object.uuid);
+                        if (commandParam.attr == "deleted")
+                        {
+                            console.log("TRYING TO DELETE:");
+                            console.log(commandParam.guid);
+                            scene.remove(worldObjects[commandParam.guid]);
+                            delete worldObjects[commandParam.guid];
+                        }
                     }
                 }
             }

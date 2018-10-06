@@ -22,7 +22,7 @@ namespace Models
         private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. 
         //bool done = false;
 
-        public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
+        public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(world, type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
             Grid = world.grid;
@@ -74,7 +74,7 @@ namespace Models
                 }
 
                 //Is giving the robot the task
-                if (robotMove == null && destined == this)
+                if (robotMove == null && destined == this && !_Inventory.Tasks.First().getRack.moving)
                 {
                     robotMove = new RobotMove(_Inventory.Tasks.First(), this, Grid);
                     _Inventory.Tasks.RemoveAt(0);

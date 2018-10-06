@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Models
@@ -9,12 +10,15 @@ namespace Models
     {
         private List<Product> Products = new List<Product>();
         private List<Product> Orders = new List<Product>();
+        private List<Product> Shipments = new List<Product>();
         private List<Racks> Racks = new List<Racks>();
         private World World;
 
         public List<Task> Tasks = new List<Task>();
 
         public List<Product> orders { get { return Orders; } }
+        public List<Product> shipments { get { return Shipments; } }
+        public List<Racks> racks { get { return Racks; } }
 
         public Inventory(World world)
         {
@@ -24,8 +28,8 @@ namespace Models
         public void PromptUser(World world)
         {
             this.World = world;
-            string productName;
-            int amount;
+            string productName = "";
+            int amount = 0;
 
             Console.WriteLine("Please enter your order.");
             Console.WriteLine("{product name} {amount}");
@@ -41,9 +45,40 @@ namespace Models
                 if (result != null && param.Count() == 2)
                 {
                     int.TryParse(param[1], out amount);
-                    AddTask(SearchRackByProduct(productName));
-                    result.RemoveStock(amount);
-                    Console.WriteLine("Ordered {0} of {1}", amount, productName);
+                    Racks rack = SearchRackByProduct(productName);
+                    if (rack != null)
+                    {
+                        if (amount <= result.stock && amount > 0)
+                        {
+                            // Create a copy of the product to be shipped
+                            Product productToShip = new Product();
+                            productToShip = productToShip.Clone(result);
+
+                            productToShip.RemoveStock(productToShip.stock - amount);
+                            //result.RemoveStock(amount);
+
+                            AddOrderOrShipment(Shipments, productToShip);
+
+                            Thread inventoryThread = new Thread(() => AddTask(rack));
+                            inventoryThread.Start();
+                        }
+                        else
+                        {
+                            Console.WriteLine("Your order is too large or too small.");
+                        }
+                        //result.RemoveStock(amount);
+                        Console.WriteLine("Ordered {0} of {1}", amount, productName);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Rack couldn't be found, try again later.");
+                    }
+                    //AddTask(SearchRackByProduct(productName));
+
+                }
+                else if (param.Count() == 1 && productName == "list")
+                {
+                    ShowStock();
                 }
                 else if (param.Count() == 1)
                 {
@@ -64,19 +99,25 @@ namespace Models
                     }
                 }
             }
-            CheckStock();
+        }
+
+        private void ShowStock()
+        {
+            foreach (Product product in Products)
+            {
+                Console.WriteLine("{0} of {1}", product.stock, product.name);
+            }
         }
 
         public void AddTask(Racks rack)
         {
+            while (rack.moving)
+            {
+                Thread.Sleep(1000);
+            }
             Task newTask = new Task();
             newTask.firstDestination = rack.currentNode;
-            newTask.finalDestination = GetAvailableNode(rack.currentNode);
-
-            //if (newTask.firstDestination != newTask.finalDestination)
-            //{
-
-            //}
+            newTask.finalDestination = World.grid.GetAvailableNode(rack.currentNode);
             newTask.firstDestination.occupied = false;
             newTask.finalDestination.occupied = true;
             newTask.getRack = rack;
@@ -86,6 +127,11 @@ namespace Models
         public void AddRack(Racks rack)
         {
             Racks.Add(rack);
+        }
+
+        public void RemoveRack(Racks rack)
+        {
+            Racks.Remove(rack);
         }
 
         public void AddProduct(string name)
@@ -101,7 +147,13 @@ namespace Models
             }
             product.AddProduct(id, name);
             Products.Add(product);
-            Orders.Add(product);
+            AddOrderOrShipment(Orders, product);
+            //Orders.Add(product);
+        }
+
+        public void AddOrderOrShipment(List<Product> list, Product product)
+        {
+            list.Add(product);
         }
 
         public Product RetrieveProduct(Product product)
@@ -140,25 +192,10 @@ namespace Models
             {
                 if (p.stock < p.minStock)
                 {
-                    p.AddStock(p.maxStock - p.stock);
+                    p.AddStock(p.maxStock);
                     orders.Add(p);
                 }
             }
-        }
-
-        private Node GetAvailableNode(Node rackNode)
-        {
-            List<Node> getNodes = World.grid.GetNodes;
-            //Node emptyNode = null;
-            string checkNode = (rackNode.type == "cargoNode") ? "storageNode" : "cargoNode";
-
-            for (int i = 0; i < getNodes.Count - 1; i++)
-            {
-                if (getNodes[i].type == checkNode && !getNodes[i].occupied)
-                    return getNodes[i];
-                    
-            }
-            return null;
         }
 
         private Racks SearchRackByProduct(string productName)
@@ -215,9 +252,9 @@ namespace Models
         private string Name;
         private int Stock = 0;
         private int MaxStock = 10;
-        private int MinStock = 5;
+        private int MinStock = 0;
 
-        public void AddProduct(int id, string name, int maxStock = 0, int minStock = 0)
+        public void AddProduct(int id, string name, int maxStock = 10, int minStock = 0)
         {
             Id = id;
             Name = name;
@@ -225,7 +262,7 @@ namespace Models
             if (maxStock != 0)
                 MaxStock = maxStock;
 
-            if (MinStock != 0)
+            if (MinStock >= 0)
                 MinStock = minStock;
         }
 
@@ -254,6 +291,16 @@ namespace Models
         {
             if (Stock - cargo >= 0)
                 Stock -= cargo;
+        }
+
+        public Product Clone(Product product)
+        {
+            Product newProduct = new Product();
+            newProduct.Id = product.id;
+            newProduct.Name = product.name;
+            newProduct.Stock = product.stock;
+
+            return newProduct;
         }
 
         public int id { get { return Id; } }
