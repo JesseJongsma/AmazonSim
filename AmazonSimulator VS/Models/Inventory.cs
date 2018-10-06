@@ -20,11 +20,19 @@ namespace Models
         public List<Product> shipments { get { return Shipments; } }
         public List<Racks> racks { get { return Racks; } }
 
+        /// <summary>
+        /// Sets the object world.
+        /// </summary>
+        /// <param name="world">World</param>
         public Inventory(World world)
         {
             World = world;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="world"></param>
         public void PromptUser(World world)
         {
             this.World = world;
@@ -101,6 +109,9 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// Displays for every product how many there are of the product.
+        /// </summary>
         private void ShowStock()
         {
             foreach (Product product in Products)
@@ -109,6 +120,10 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="rack"></param>
         public void AddTask(Racks rack)
         {
             while (rack.moving)
@@ -124,16 +139,28 @@ namespace Models
             Tasks.Add(newTask);
         }
 
+        /// <summary>
+        /// Adds the object rack to the list Racks.
+        /// </summary>
+        /// <param name="rack">Racks</param>
         public void AddRack(Racks rack)
         {
             Racks.Add(rack);
         }
 
+        /// <summary>
+        /// Removes the rack from the list Racks.
+        /// </summary>
+        /// <param name="rack">Racks</param>
         public void RemoveRack(Racks rack)
         {
             Racks.Remove(rack);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="name"></param>
         public void AddProduct(string name)
         {
             Product product = new Product();
@@ -151,11 +178,21 @@ namespace Models
             //Orders.Add(product);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="product"></param>
         public void AddOrderOrShipment(List<Product> list, Product product)
         {
             list.Add(product);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         public Product RetrieveProduct(Product product)
         {
             foreach (Product p in Products)
@@ -167,6 +204,11 @@ namespace Models
             return null;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="product"></param>
+        /// <param name="cargo"></param>
         public void AddStock(Product product, int cargo)
         {
             if (RetrieveProduct(product) != null)
@@ -175,6 +217,11 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="product"></param>
+        /// <param name="cargo"></param>
         public void RemoveStock(Product product, int cargo)
         {
             foreach (Product p in Products)
@@ -186,6 +233,9 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
         public void CheckStock()
         {
             foreach (Product p in Products)
@@ -198,6 +248,11 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="productName"></param>
+        /// <returns></returns>
         private Racks SearchRackByProduct(string productName)
         {
             Product result = SearchProduct(productName);
@@ -219,6 +274,11 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="productName"></param>
+        /// <returns></returns>
         private Product SearchProduct(string productName)
         {
             foreach (Product p in Products)
@@ -232,6 +292,10 @@ namespace Models
             return null;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="list"></param>
         private void SortList(List<Product> list)
         {
             int count = 0;
@@ -254,6 +318,13 @@ namespace Models
         private int MaxStock = 10;
         private int MinStock = 0;
 
+        /// <summary>
+        /// Sets the given variables.
+        /// </summary>
+        /// <param name="id">Id of the product</param>
+        /// <param name="name">Name of the product</param>
+        /// <param name="maxStock">Maximal stocks</param>
+        /// <param name="minStock">Minimal stocks</param>
         public void AddProduct(int id, string name, int maxStock = 10, int minStock = 0)
         {
             Id = id;
@@ -266,6 +337,13 @@ namespace Models
                 MinStock = minStock;
         }
 
+        /// <summary>
+        ///<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="name"></param>
+        /// <param name="maxStock"></param>
+        /// <param name="minStock"></param>
         public void AlterProduct(int id = -1, string name = null, int maxStock = -1, int minStock = -1)
         {
             if (id != -1)
@@ -293,6 +371,11 @@ namespace Models
                 Stock -= cargo;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         public Product Clone(Product product)
         {
             Product newProduct = new Product();

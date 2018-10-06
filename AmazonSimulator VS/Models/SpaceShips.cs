@@ -8,12 +8,13 @@ namespace Models
     public class Spaceships : Model3D, IUpdatable
     {
         private double ss_z = 125;
+        int height = 25;
         private double stop = 8; 
         private double count = 0;
         private double radius = 0;
         private List<Product> Cargo = new List<Product>();
 
-        //Summary of the constructor and more is found in Model3D.cs
+        //Summary of the constructor and more is found in Model3D.cs.
         public List<Product> cargo { get { return Cargo; } }
 
         public Spaceships(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(world, type, x, y, z, rotationX, rotationY, rotationZ)
@@ -21,9 +22,11 @@ namespace Models
             Console.WriteLine("Spaceship created");
         }
 
+        /// <summary>
+        /// This methode lets the spaceship go up, down and lets the spaceship rotate. 
+        /// </summary>
         public void moveSpaceship()
         {
-            int height = 25;
             if (ss_z != -140)
             {
 
@@ -49,7 +52,10 @@ namespace Models
             }
         }
 
-
+        /// <summary>
+        /// Checks whether the spaceship is on certain coordinates.
+        /// </summary>
+        /// <returns>true or false</returns>
         public bool checkCoordinates()
         {
             if (ss_z == stop || ss_z == -stop)
@@ -59,13 +65,19 @@ namespace Models
             else
                 return false;
         }
-
+        /// <summary>
+        /// Resets the position of the spaceship to z-coordinate 125.
+        /// </summary>
         public void reset()
         {
             ss_z = 125;
             Move(x, height, ss_z);
         }
 
+        /// <summary>
+        /// Adds the passed item to the list
+        /// </summary>
+        /// <param name="product">Product</param>
         public void AddCargo(Product product)
         {
             Cargo.Add(product);

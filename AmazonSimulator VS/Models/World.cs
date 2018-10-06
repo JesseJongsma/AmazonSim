@@ -183,10 +183,7 @@ namespace Models
 
                                 spaceship.cargo.Clear();
                             }
-
-
                             //if( || (spaceship.z > -140 ^ spaceship.z == 125) )
-
                         }
                         else if (u is Racks)
                         {
@@ -197,10 +194,6 @@ namespace Models
                             {
                                 worldObjects.Remove(rack);
                                 Inventory.RemoveRack(rack);
-                            }
-                            if (checkCoordinateShip == true && tasksLoaded == false)
-                            {
-                                tasksLoaded = true;
                             }
                         }
 
@@ -305,6 +298,10 @@ namespace Models
                 return false;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="spaceship"></param>
         private void ReceiveShipment(Spaceships spaceship)
         {
             for (int i = 0; i <= Inventory.shipments.Count() - 1; i++)

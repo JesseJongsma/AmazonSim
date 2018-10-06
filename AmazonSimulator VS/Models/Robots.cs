@@ -22,6 +22,7 @@ namespace Models
         private const double Speed = 0.1; // min = 0.1 max = 1 // Only use one decimal. 
         //bool done = false;
 
+        //Summary of the constructor and more is found in Model3D.cs
         public Robots(World world, string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(world, type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Robot created");
@@ -30,6 +31,11 @@ namespace Models
             worldObjects = world.worldObjects; 
         }
 
+        /// <summary>
+        /// Sets the start node and the destination node and adds start to the list visited. Calls the methode AddRoad and gives start to it.
+        /// </summary>
+        /// <param name="start">Node object</param>
+        /// <param name="destination">Node object</param>
         public void InitPaths(Node start, Node destination)
         {
             Start = start;
@@ -41,6 +47,9 @@ namespace Models
 
         private Robots destined;
         private double closestTo; 
+        /// <summary>
+        /// Checks which robot is the closest to the rack and gives the task to the closest robot.
+        /// </summary>
         public void giveTask()
         {
             if (_Inventory.Tasks.Count != 0)
@@ -81,6 +90,11 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// Overrides the methode Update from the class Model3D. 
+        /// </summary>
+        /// <param name="tick">Over how many milliseconds it has to check itself</param>
+        /// <returns>true or false</returns>
         public override bool Update(int tick)
         {
             giveTask();
@@ -100,10 +114,14 @@ namespace Models
                 }
                 return true;
             }
-            return true;
-
+            else
+                return false;
         }
         
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <returns></returns>
         private List<Node> GeneratePath()
         {
             bool done = false;
@@ -127,6 +145,10 @@ namespace Models
         }
 
         //private Road path;
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <returns></returns>
         private List<Node> GetShortestPath()
         {
             if (Visited.Last() != Destination)
@@ -158,11 +180,13 @@ namespace Models
         private int index = 0;
         private double nodeX, nodeZ, countX, countZ;
         private List<Node> path;
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
         public void FollowPath()
         {
             if (path == null)
                 path = GetShortestPath();
-
 
             nodeX = path[index].x;
             nodeZ = path[index].z;
@@ -190,6 +214,10 @@ namespace Models
 
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="newNode"></param>
         private void RoadStackAdd(Node newNode)
         {
             if (RoadStack.Count != 0)
@@ -203,6 +231,11 @@ namespace Models
             RoadStack.Add(AddRoad(newNode));
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private Road AddRoad(Node node)
         {
             Road road = new Road(node);
@@ -222,6 +255,12 @@ namespace Models
             return road;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="list"></param>
+        /// <param name="newNode"></param>
+        /// <returns></returns>
         private bool UpdateDistance(List<Road> list, Node newNode)
         {
             bool updated = false;
@@ -241,6 +280,10 @@ namespace Models
             return updated;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="list"></param>
         private void SortList(List<Road> list)
         {
             bool change = false;
@@ -261,6 +304,13 @@ namespace Models
             } while (change);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="step"></param>
+        /// <returns></returns>
         private double countInRange(double start, double end, double step)
         {
             start = Math.Round(start, 1);
@@ -277,6 +327,11 @@ namespace Models
             return Math.Round(start, 1);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
         private Road GetRoadByNode(Node node)
         {
             foreach (Road road in AllRoads)
@@ -289,6 +344,9 @@ namespace Models
             return null;
         }
 
+        /// <summary>
+        /// Reset methode, resets everyting to null; 
+        /// </summary>
         private void Reset()
         {
             Start = null;
@@ -301,6 +359,9 @@ namespace Models
         }
     }
 
+    /// <summary>
+    /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+    /// </summary>
     class Road
     {
         public Node Node;

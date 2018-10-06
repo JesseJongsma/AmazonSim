@@ -15,13 +15,10 @@
         var camera, scene, renderer;
         var exampleSocket;
         var spaceShipObject;
-        var loaded = false;
         var drawScene = new DrawScene(scene);
         var radius = 0, height = 0;
         var i = 100;
-        var cone, earth, rack, load, door = false;
-        var light = false;
-        var DEBUG = true;
+        var cone, earth, rack, load, door, light, loaded = false;
 
 
         window.onload = function () {
@@ -30,17 +27,14 @@
             var worldObjects = {};
             var spaceShipGroup = new THREE.Group();
             var radius = 0;
-            var label;
 
             function init() {
                 viewCamera();
                 viewRenderer();
 
                 scene = new THREE.Scene();
-                if (!DEBUG) {
-                    //The sphere sky box is drawn
-                    scene.add(drawScene.drawSphere(900, 32, 32, 0, 0, 0, "/SkyBox/galaxy.png"));
-                }
+                //The sphere sky box is drawn
+                scene.add(drawScene.drawSphere(900, 32, 32, 0, 0, 0, "/SkyBox/galaxy.png"));
 
                 //The light is drawn
                 scene.add(drawScene.drawLight(-10, 200, 490, 1, 0, 0xffffff, "pointLight"));
@@ -79,9 +73,9 @@
                 renderer.render(scene, camera);
             }
 
+            //Creates the dock storage.
             function loadStorage() {
                 var grey = 0x808080;
-                //var blue = 0x191970;
 
                 //Long wall
                 scene.add(drawScene.drawWall(1, 8, 25, -50, 4, 0, grey));
@@ -91,17 +85,15 @@
                 scene.add(drawScene.drawWall(13, 8, 1, -43.5, 4, 12.5, grey));
                 scene.add(drawScene.drawWall(3, 8, 1, -31.5, 4, -12.5, grey));
                 scene.add(drawScene.drawWall(13, 8, 1, -43.5, 4, -12.5, grey));
-                //Door
-                //scene.add(drawScene.drawWall(4, 8, 1, -35, 4, 12.5, 0x191970));
-                //scene.add(drawScene.drawWall(4, 8, 1, -35, 4, -12.5, blue));
             }
 
+            //Draws a cone under the spaceship.
             function drawCone(x, y, z, rad = null) {
 
                 if (radius <= 4)
                     radius = radius + 0.2;
 
-                // Overwrite if optional arguments are given
+                // Overwrite if optional arguments are given.
                 if (rad != null)
                     radius = rad;
 
@@ -111,6 +103,7 @@
                 scene.add(drawScene.drawCone(x, y, z, radius, 0x00ff00));
             }
 
+            //Check if the spaceship is above the docking station. 
             function checkCone(t) {
                 if (t.z < 12.5 && t.z >= -12.5 && t.type === "spaceship") {
                     drawCone(t.x, t.y, t.z);
@@ -123,6 +116,7 @@
                 }
             }
 
+            //Clears the scene.
             function clearScene(obj) {
                 scene.remove(obj);
                 obj.geometry.dispose();
@@ -130,6 +124,7 @@
                 obj = null;
             }
 
+            //Goes trough all the different types of models in the list worldobjects.
             exampleSocket = new WebSocket("ws://" + window.location.hostname + ":" + window.location.port + "/connect_client");
             exampleSocket.onmessage = function (event) {
                 var command = parseCommand(event.data)
@@ -137,16 +132,15 @@
                     var commandParam = command.parameters;
                     if (Object.keys(worldObjects).indexOf(commandParam.guid) < 0) {
                         switch (commandParam.type) {
-                            //Trying to load robot
+                            //Trying to load robot.
                             case "robot":
                                 var group = drawScene.drawRobot(0.9, 0.3, 0.9);
                                 scene.add(group);
-
                                 console.log("TRYING TO LOAD THE ROBOT");
                                 worldObjects[commandParam.guid] = group;
                                 break;
 
-                            //Trying to load spaceship
+                            //Trying to load spaceship and sets loaded to true so it wont draw more than one spaceship.
                             case "spaceship":
                                 if (!loaded) {
                                     console.log("TRYING TO LOAD THE SPACESHIP");
@@ -160,7 +154,7 @@
                                 }
                                 break;
 
-                            //Trying to load earth
+                            //Trying to load earth.
                             case "earth":
                                 if (!earth) {
                                     console.log("TRYING TO LOAD EARTH");
@@ -173,10 +167,8 @@
                                 }
                                 break;
 
-                            //Trying to load rack
+                            //Trying to load rack.
                             case "rack":
-                                console.log(command);
-
                                 if (!rack) {
                                     console.log("TRYING TO LOAD THE RACK");
                                     rack = true;
@@ -187,33 +179,16 @@
                                         scene.add(obj);
                                         rack = false;
                                     });
-                                    
                                 }
-
-                                //if (commandParam.attr == "deleted") {
-                                //    console.log("First if");
-                                //    for (var obj in worldObjects) {
-                                //        console.log("obj:");
-                                //        console.log(obj);
-                                //        console.log("commandParam.guid:");
-                                //        console.log(commandParam.guid);
-                                //        if (obj == commandParam.guid) {
-                                //            console.log("TRYING TO DELETE:");
-                                //            console.log(obj);
-                                //            console.log(commandParam)
-                                //            scene.remove(obj);
-                                //        }
-                                //    }
-                                //}
                                 break;
 
-                            //Trying to load road
+                            //Trying to load road.
                             case "road":
                                 console.log("LOADING A ROAD");
                                 scene.add(drawScene.drawPlane(commandParam.width, commandParam.height, commandParam.x, 0.05, commandParam.z, 0x808080));
                                 break;
 
-                            //Trying to load node
+                            //Trying to load node.
                             case "node":
                                 console.log("NODE");
                                 var colour = null;
@@ -225,13 +200,13 @@
                                 scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, null, null, colour, false));
                                 break;
 
-                            //Trying to load synapse
+                            //Trying to load synapse.
                             case "synapse":
                                 console.log("SYNAPSE");
                                 scene.add(drawScene.drawNodeOrSyn(commandParam.x, commandParam.z, commandParam.width, commandParam.depth, 0xff00ff, true));
                                 break;
 
-                            //Trying to load light
+                            //Trying to load light.
                             case "light":
                                 if (!light) {
                                     console.log("LOADING FLUORESCENT_TUBE");
@@ -246,20 +221,21 @@
                                 }
                                 break;
 
-                            //Trying to load door
+                            //Trying to load door.
                             case "door":
                                 if (!door) {
-                                    door = true; 
+                                    door = true;
                                     console.log("LOADING DOOR");
                                     var wall = drawScene.drawWall(4, 8, 1, commandParam.x, commandParam.y, commandParam.z, 0x191970);
                                     worldObjects[commandParam.guid] = wall;
                                     scene.add(wall);
-                                    door = false; 
+                                    door = false;
                                 }
                                 break;
                         }
                     }
 
+                    //Sets the object coordinates from the back-end to the frond-end.
                     var object = worldObjects[commandParam.guid];
                     if (object != null) {
                         object.position.x = commandParam.x;
@@ -271,9 +247,7 @@
                         object.rotation.z = commandParam.rotationZ;
 
                         checkCone(commandParam);
-                        //console.log(object.uuid);
-                        if (commandParam.attr == "deleted")
-                        {
+                        if (commandParam.attr == "deleted") {
                             console.log("TRYING TO DELETE:");
                             console.log(commandParam.guid);
                             scene.remove(worldObjects[commandParam.guid]);
@@ -282,7 +256,7 @@
                     }
                 }
             }
-            
+
             init();
             console.log(worldObjects);
             animate();

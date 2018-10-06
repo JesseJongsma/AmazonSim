@@ -23,8 +23,8 @@ namespace Models
         /// Checks by calling the methode check if a robot is nearby the door and if the door is open. And if true or false there will be
         /// a animation of opening the door and closing the door. 
         /// </summary>
-        /// <param name="tick"></param>
-        /// <returns></returns>
+        /// <param name="tick">Over how many milliseconds it has to check itself</param>
+        /// <returns>true or false </returns>
         public override bool Update(int tick)
         {
             if (check() && !doorOpen)

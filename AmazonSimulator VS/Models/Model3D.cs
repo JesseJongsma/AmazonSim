@@ -102,7 +102,7 @@ namespace Models {
         /// <summary>
         /// Is checking if a model is needed to be updated.
         /// </summary>
-        /// <param name="tick">How many times it has to check the methode update </param>
+        /// <param name="tick">Over how many milliseconds it has to check itself</param>
         /// <returns> true or false</returns>
         public virtual bool Update(int tick)
         {
