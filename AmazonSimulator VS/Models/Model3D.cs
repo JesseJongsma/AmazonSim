@@ -30,6 +30,16 @@ namespace Models {
 
         public bool needsUpdate = true;
 
+        /// <summary>
+        /// The constructor of the model. Sets the private variables.
+        /// </summary>
+        /// <param name="type">Says which type of model it is</param>
+        /// <param name="x">Sets x coordinate of the model</param>
+        /// <param name="y">Sets y coordinate of the model</param>
+        /// <param name="z">Sets z coordinate of the model</param>
+        /// <param name="rotationX">Sets the rotation x in radians of the model</param>
+        /// <param name="rotationY">Sets the rotation y in radians of the model</param>
+        /// <param name="rotationZ">Sets the rotation z in radians of the model</param>
         public Model3D(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) {
             this.type = type;
             this.guid = Guid.NewGuid();
@@ -43,6 +53,13 @@ namespace Models {
             this._rZ = rotationZ;
         }
 
+        /// <summary>
+        /// If you want to move a model than call this methode. It also sets needsUpdate to true, so the movement in the back-end will 
+        /// also be in the front-end. 
+        /// </summary>
+        /// <param name="x">Sets x coordinate of the model</param>
+        /// <param name="y">Sets y coordinate of the model</param>
+        /// <param name="z">Sets z coordinate of the model</param>
         public virtual void Move(double x, double y, double z) {
             this._x = x;
             this._y = y;
@@ -51,6 +68,13 @@ namespace Models {
             needsUpdate = true;
         }
 
+        /// <summary>
+        ///  If you want to rotate a model than call this methode. It also sets needsUpdate to true, so the movement in the back-end will 
+        /// also be in the front-end. 
+        /// </summary>
+        /// <param name="rotationX">Sets the rotation x in radians of the model</param>
+        /// <param name="rotationY">Sets the rotation y in radians of the model</param>
+        /// <param name="rotationZ">Sets the rotation z in radians of the model</param>
         public virtual void Rotate(double rotationX, double rotationY, double rotationZ) {
             this._rX = rotationX;
             this._rY = rotationY;
@@ -59,14 +83,24 @@ namespace Models {
             needsUpdate = true;
         }
 
+        /// <summary>
+        /// If you want to make a model bigger, higher or deeper than call this methode. 
+        /// </summary>
+        /// <param name="width">Sets the width of the model</param>
+        /// <param name="height">Sets the height of the model</param>
+        /// <param name="depth">Sets the depth of the model</param>
         public virtual void Transform(double width, double height, double depth)
         {
             _width = width;
             _height = height;
             _depth = depth;
-
         }
 
+        /// <summary>
+        /// Is checking if a model is needed to be updated.
+        /// </summary>
+        /// <param name="tick">How many times it has to check the methode update </param>
+        /// <returns> true or false</returns>
         public virtual bool Update(int tick)
         {
             if(needsUpdate) {

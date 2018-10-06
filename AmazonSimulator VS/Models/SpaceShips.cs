@@ -12,6 +12,7 @@ namespace Models
         private double count = 0;
         private double radius = 0;
 
+        //Summary of the constructor and more is found in Model3D.cs
         public Spaceships(string type, double x, double y, double z, double rotationX, double rotationY, double rotationZ) : base(type, x, y, z, rotationX, rotationY, rotationZ)
         {
             Console.WriteLine("Spaceship created");
