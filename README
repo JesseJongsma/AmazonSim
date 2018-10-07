@@ -1,9 +1,6 @@
-We have created an Amazon simulator. You can purchase products by typing {your product} (in the console), one product equals 10 articles. 
-This product comes in a Rack. The Rack is brought by a spaceship to the storage and the robots put the rack in a free space.
+We have created an Amazon simulator. You can purchase products by typing {your product} (in the console), one product equals 10 articles. This product comes in a Rack. The Rack is brought by a spaceship to the storage and the robots put the rack in a free space.
 
-If you would like to order products as user you can do so by typing {your product, ammount per piece}. This is only possible when you
-have enough stock available. For example, if you order 3 apples then there will still be 7 apples in the rack. The 3 apples are
-removed from the rack and are brought to your home by the spaceship. The other 7 apples in the Rack are brought back in to the storage. 
+If you would like to order products as user you can do so by typing {your product, ammount per piece}. This is only possible when you have enough stock available. For example, if you order 3 apples then there will still be 7 apples in the rack. The 3 apples are removed from the rack and are brought to your home by the spaceship. The other 7 apples in the Rack are brought back in to the storage. 
 
 Commands: 
  - Deliver to the storage:
