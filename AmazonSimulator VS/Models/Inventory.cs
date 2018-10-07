@@ -59,7 +59,7 @@ namespace Models
 
                             AddOrderOrShipment(Shipments, productToShip);
 
-                            Thread inventoryThread = new Thread(() => AddTask(rack));
+                            Thread inventoryThread = new Thread(() => AddTask(rack, "cargoNode"));
                             inventoryThread.Start();
                         }
                         else
@@ -109,7 +109,7 @@ namespace Models
             }
         }
 
-        public void AddTask(Racks rack)
+        public void AddTask(Racks rack, string typeNode = "")
         {
             while (rack.moving)
             {
@@ -117,7 +117,7 @@ namespace Models
             }
             Task newTask = new Task();
             newTask.firstDestination = rack.currentNode;
-            newTask.finalDestination = World.grid.GetAvailableNode(rack.currentNode);
+            newTask.finalDestination = World.grid.GetAvailableNode(rack.currentNode, typeNode);
             newTask.firstDestination.occupied = false;
             newTask.finalDestination.occupied = true;
             newTask.getRack = rack;
@@ -190,7 +190,7 @@ namespace Models
         {
             foreach (Product p in Products)
             {
-                if (p.stock < p.minStock)
+                if (p.stock <= p.minStock)
                 {
                     p.AddStock(p.maxStock);
                     orders.Add(p);

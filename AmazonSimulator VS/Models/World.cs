@@ -27,9 +27,9 @@ namespace Models
             inventoryPromptThread.Start();
 
             Thread inventoryCheckStockThread = new Thread(() => InventoryCheck(Inventory));
-            inventoryCheckStockThread.Start();
+            //inventoryCheckStockThread.Start();
 
-            for (int i = 0; i < 1; i++)
+            for (int i = 0; i < 3; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
             }
@@ -44,12 +44,6 @@ namespace Models
                 inv.PromptUser(this);
             }
         }
-        private Doors CreateDoors(double x, double y, double z)
-        {
-            Doors door = new Doors(this, "door", x, y, z, 0, 0, 0);
-            worldObjects.Add(door);
-            return door;
-        }
 
         private void InventoryCheck(Inventory inv)
         {
@@ -58,6 +52,13 @@ namespace Models
                 Thread.Sleep(5000);
                 inv.CheckStock();
             }
+        }
+
+        private Doors CreateDoors(double x, double y, double z)
+        {
+            Doors door = new Doors(this, "door", x, y, z, 0, 0, 0);
+            worldObjects.Add(door);
+            return door;
         }
 
         private Robots CreateRobot(double x, double y, double z)
@@ -170,14 +171,17 @@ namespace Models
                                 ReceiveShipment(spaceship);
                             }
 
+                            if (spaceship.z < -8)
+                                Inventory.CheckStock();
+
                             if (Inventory.orders.Count() > 0)
                             {
-
                                 checkCoordinateShip = ReceiveCargo(spaceship);
                             }
 
                             if ((Inventory.orders.Count() > 0 || Inventory.shipments.Count() > 0) || (spaceship.z > -140 ^ spaceship.z == 125))
                                 spaceship.moveSpaceship();
+
                             if (spaceship.z == -139 && spaceship.cargo.Count() > 0)
                             {
                                 spaceship.cargo.ForEach(x =>
@@ -212,7 +216,7 @@ namespace Models
                             door.Update(tick);
                         }
 
-                        else if(u is Model3D)
+                        else if (u is Model3D)
                         {
                             Model3D model = (Model3D)u;
                             if (model.type == "light")
@@ -264,36 +268,25 @@ namespace Models
             {
                 while (Inventory.orders.Count != 0)
                 {
-                    if (rack == null)
+                    for (int i = 3; i < 8; i++)
                     {
-                        for (int i = 3; i < 8; i++)
+                        if (!grid.GetNodes[i].occupied)
                         {
-                            if (!grid.GetNodes[i].occupied)
-                            {
-                                rack = CreateRack(grid.GetNodes[i]);
-                                Inventory.AddRack(rack);
-                                grid.GetNodes[i].occupied = true;
-                                break;
-                            }
+                            // Create the rack
+                            rack = CreateRack(grid.GetNodes[i]);
+                            Inventory.AddRack(rack);
+
+                            // Set node to occupied
+                            grid.GetNodes[i].occupied = true;
+
+                            // Add products to the rack
+                            rack.AddProduct(Inventory.orders.First());
+                            Inventory.orders.Remove(Inventory.orders.First());
+                            Inventory.AddTask(rack);
+                            break;
                         }
                     }
-
-                    if (rack.contains.Count < 5)
-                    {
-                        rack.AddProduct(Inventory.orders.First());
-
-                        Inventory.orders.Remove(Inventory.orders.First());
-                    }
-                    else
-                    {
-                        Inventory.AddTask(rack);
-                        rack = null;
-                    }
                 }
-                if (rack != null)
-                    Inventory.AddTask(rack);
-
-                rack = null;
                 loaded = 0;
                 return true;
             }
@@ -303,6 +296,7 @@ namespace Models
 
         private void ReceiveShipment(Spaceships spaceship)
         {
+            Task task = null;
             for (int i = 0; i <= Inventory.shipments.Count() - 1; i++)
             {
                 for (int j = 0; j <= Inventory.racks.Count() - 1; j++)
@@ -314,11 +308,14 @@ namespace Models
                             if (Inventory.racks[j].contains[k].id == Inventory.shipments[i].id)
                             {
                                 spaceship.AddCargo(Inventory.shipments[i]);
-                                Task task = Inventory.racks[j].RemoveStock(Inventory.racks[j].contains[k], Inventory.shipments[i].stock);
+                                task = Inventory.racks[j].RemoveStock(Inventory.racks[j].contains[k], Inventory.shipments[i].stock);
+                                Inventory.shipments.Remove(Inventory.shipments[i]);
+
                                 if (task != null)
                                     Inventory.Tasks.Add(task);
 
-                                Inventory.shipments.Remove(Inventory.shipments[i]);
+                                if (Inventory.shipments.Count() == 0)
+                                    return;
                             }
                         }
                         if (Inventory.racks[j].contains.Count() == 0)

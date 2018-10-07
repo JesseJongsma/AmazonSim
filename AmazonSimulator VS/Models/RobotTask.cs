@@ -64,12 +64,12 @@ namespace Models
                 {
                     firstDestinationVisited = true;
                     task.getRack.currentNode.occupied = false;
-                    task.firstDestination.occupied = false;
                     task.finalDestination.occupied = true;
                     task.getRack.moving = true;
                 }
                 if (firstDestinationVisited)
                 {
+                    task.firstDestination.occupied = false;
                     task.getRack.moving = true;
                     rackmove.MovingRack(task.getRack, robot);
                 }

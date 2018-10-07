@@ -79,13 +79,14 @@ namespace Models
             return getNode; 
         }
 
-        public Node GetAvailableNode(Node currentNode)
+        public Node GetAvailableNode(Node currentNode, string typeNode = "")
         {
-            string checkNode = (currentNode.type == "cargoNode") ? "storageNode" : "cargoNode";
+            if(typeNode == "")
+                typeNode = (currentNode.type == "cargoNode") ? "storageNode" : "cargoNode";
 
             for (int i = 0; i < NodesList.Count - 1; i++)
             {
-                if (NodesList[i].type == checkNode && !NodesList[i].occupied)
+                if (NodesList[i].type == typeNode && !NodesList[i].occupied)
                     return NodesList[i];
 
             }

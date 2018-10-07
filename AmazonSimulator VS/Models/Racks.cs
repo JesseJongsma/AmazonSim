@@ -39,6 +39,12 @@ namespace Models
                         if (product.stock == 0)
                         {
                             Contains.Remove(product);
+                            if (Contains.Count() > 0)
+                                return CreateTask();
+                            else
+                            {
+                                this.attr = "deleted";
+                            }
                         }
                         else
                         {
