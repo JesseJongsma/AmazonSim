@@ -381,8 +381,6 @@ namespace Models
 
 
             addConnections();
-            if (DEBUG)
-                drawNodes();
             Console.WriteLine("Loading road...");
         }
 
