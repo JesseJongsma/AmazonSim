@@ -8,7 +8,7 @@ namespace Models
     public class Spaceships : Model3D, IUpdatable
     {
         private double ss_z = 125;
-        int height = 25;
+        private int spaceshipHeight = 25;
         private double stop = 8; 
         private double count = 0;
         private double radius = 0;
@@ -29,8 +29,7 @@ namespace Models
         {
             if (ss_z != -140)
             {
-
-                Move(x, height + Math.Cos(radius) * 1.1, ss_z);
+                Move(x, spaceshipHeight + Math.Cos(radius) * 1.1, ss_z);
                 Rotate(rotationX, radius / 2, rotationZ);
                 radius += 0.25;
                 radius = (radius >= 360) ? 0 : radius; // reset radius
@@ -71,7 +70,7 @@ namespace Models
         public void reset()
         {
             ss_z = 125;
-            Move(x, height, ss_z);
+            Move(x, spaceshipHeight, ss_z);
         }
 
         /// <summary>

@@ -30,10 +30,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add a new connection between 2 nodes
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="destination"></param>
+        /// <param name="source">source node</param>
+        /// <param name="destination">target node</param>
         public void AddConnection(Node source, Node destination)
         {
             ConnectedNodes newConnection = new ConnectedNodes();
@@ -45,10 +45,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Find all nodes that are connected to a node
         /// </summary>
         /// <param name="searchNode"></param>
-        /// <returns></returns>
+        /// <returns>Returns a list of all connected nodes</returns>
         public List<Node> GetDestinationsBySource(Node searchNode)
         {
             List<Node> destinations = new List<Node>();
@@ -61,11 +61,11 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Calculate the distance between 2 nodes
         /// </summary>
         /// <param name="origin"></param>
         /// <param name="destination"></param>
-        /// <returns></returns>
+        /// <returns>Returns the distance</returns>
         public double CalculateDistance(Node origin, Node destination)
         {
             double differenceX = origin.x - destination.x;
@@ -73,28 +73,6 @@ namespace Models
             double distance = Math.Sqrt(Math.Pow(differenceX, 2) + Math.Pow(differenceZ, 2));
 
             return distance;
-        }
-
-        /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
-        /// </summary>
-        public List<Node> GetNodes
-        {
-            get
-            {
-                return NodesList;
-            }
-        }
-
-        /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
-        /// </summary>
-        public List<ConnectedNodes> GetConnectedNodes
-        {
-            get
-            {
-                return ConnectedNodesList;
-            }
         }
 
         private Node getNode;
@@ -115,10 +93,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Search a node that isn't occupied
         /// </summary>
-        /// <param name="currentNode"></param>
-        /// <returns></returns>
+        /// <param name="currentNode">The current node of a rack</param>
+        /// <returns>Returns an non-occupied node</returns>
         public Node GetAvailableNode(Node currentNode, string typeNode = "")
         {
             if(typeNode == "")
@@ -131,6 +109,22 @@ namespace Models
 
             }
             return null;
+        }
+
+        public List<Node> GetNodes
+        {
+            get
+            {
+                return NodesList;
+            }
+        }
+
+        public List<ConnectedNodes> GetConnectedNodes
+        {
+            get
+            {
+                return ConnectedNodesList;
+            }
         }
     }
 

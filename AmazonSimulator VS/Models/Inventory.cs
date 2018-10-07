@@ -8,13 +8,13 @@ namespace Models
 {
     public class Inventory
     {
-        private List<Product> Products = new List<Product>();
-        private List<Product> Orders = new List<Product>();
-        private List<Product> Shipments = new List<Product>();
-        private List<Racks> Racks = new List<Racks>();
+        private List<Product> Products = new List<Product>(); // List of products
+        private List<Product> Orders = new List<Product>(); // List of orders for our warehouse
+        private List<Product> Shipments = new List<Product>(); // List of outgoing orders
+        private List<Racks> Racks = new List<Racks>(); // List of all exsiting racks
         private World World;
 
-        public List<Task> Tasks = new List<Task>();
+        public List<Task> Tasks = new List<Task>(); // List of all tasks for the robots
 
         public List<Product> orders { get { return Orders; } }
         public List<Product> shipments { get { return Shipments; } }
@@ -23,87 +23,86 @@ namespace Models
         /// <summary>
         /// Sets the object world.
         /// </summary>
-        /// <param name="world">World</param>
+        /// <param name="world">World instance</param>
         public Inventory(World world)
         {
             World = world;
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Prompts the user to order products
         /// </summary>
-        /// <param name="world"></param>
-        public void PromptUser(World world)
+        public void PromptUser()
         {
-            this.World = world;
             string productName = "";
             int amount = 0;
 
             Console.WriteLine("Please enter your order.");
             Console.WriteLine("{product name} {amount}");
 
-            string input = Console.ReadLine();
+            string input = Console.ReadLine(); // User input
             string[] param = input.Split(' ');
 
-            if (param.Count() <= 2)
-            {
+            // Check if the input is valid
+            if (param.Count() >= 1)
                 productName = param[0];
 
-                Product result = SearchProduct(productName);
-                if (result != null && param.Count() == 2)
+            if (param.Count() == 2)
+                int.TryParse(param[1], out amount);
+
+            if (param.Count() > 2 || productName == "")
+            {
+                Console.WriteLine("Something went wrong with your input");
+                return;
+            }
+
+            Product result = SearchProduct(productName); // Search the entered product
+            Racks rack = SearchRackByProduct(productName); // Search the rack
+
+            if (rack != null)
+            {
+                if (amount <= result.stock)
                 {
-                    int.TryParse(param[1], out amount);
-                    Racks rack = SearchRackByProduct(productName);
-                    if (rack != null)
-                    {
-                        if (amount <= result.stock && amount > 0)
-                        {
-                            // Create a copy of the product to be shipped
-                            Product productToShip = new Product();
-                            productToShip = productToShip.Clone(result);
+                    // Create a copy of the product to be shipped
+                    Product productToShip = new Product();
+                    productToShip = productToShip.Clone(result);
 
-                            productToShip.RemoveStock(productToShip.stock - amount);
-                            //result.RemoveStock(amount);
+                    // Remove stock from the copy and add to shipments
+                    productToShip.RemoveStock(productToShip.stock - amount);
+                    AddOrderOrShipment(Shipments, productToShip);
 
-                            AddOrderOrShipment(Shipments, productToShip);
-
-                            Thread inventoryThread = new Thread(() => AddTask(rack, "cargoNode"));
-                            inventoryThread.Start();
-                        }
-                        else
-                        {
-                            Console.WriteLine("Your order is too large or too small.");
-                        }
-                        //result.RemoveStock(amount);
-                        Console.WriteLine("Ordered {0} of {1}", amount, productName);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Rack couldn't be found, try again later.");
-                    }
-                    //AddTask(SearchRackByProduct(productName));
-
+                    // Start new tread to add the task
+                    Console.WriteLine("Ordered {0} of {1}", amount, productName);
+                    Thread inventoryThread = new Thread(() => AddTask(rack, "cargoNode"));
+                    inventoryThread.Start();
                 }
-                else if (param.Count() == 1 && productName == "list")
+                else
+                    Console.WriteLine("Your order is too large or too small.");
+            }
+            else if(result != null && param.Count() == 2)
+            {
+                Console.WriteLine("Rack couldn't be found, try again later.");
+            }
+
+            if (param.Count() == 1 && productName == "list")
+            {
+                ShowStock();
+            }
+            else if (result == null)
+            {
+                bool correct = false;
+                while (!correct)
                 {
-                    ShowStock();
-                }
-                else if (param.Count() == 1)
-                {
-                    bool correct = false;
-                    while (!correct)
+                    Console.WriteLine("{0}, was not found. Do you want to add this item to the invetory? (Y/N)", productName);
+                    string AddProduct = Console.ReadLine();
+                    if (AddProduct.ToLower().ToString() == "y")
                     {
-                        Console.WriteLine("{0}, was not found. Do you want to add this item to the invetory? (Y/N)", productName);
-                        string AddProduct = Console.ReadLine();
-                        if (AddProduct.ToLower().ToString() == "y")
-                        {
-                            this.AddProduct(productName);
-                            correct = true;
-                        }
-                        else if (AddProduct.ToLower().ToString() == "n")
-                        {
-                            correct = true;
-                        }
+                        this.AddProduct(productName);
+                        correct = true;
+                    }
+                    else if (AddProduct.ToLower().ToString() == "n")
+                    {
+                        correct = true;
                     }
                 }
             }
@@ -121,28 +120,34 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Adds a new task for the robots
         /// </summary>
-        /// <param name="rack"></param>
+        /// <param name="rack">The rack to be added</param>
+        /// <param name="typeNode">The final node type (leave blank to get the opposite type of the current node)</param>
         public void AddTask(Racks rack, string typeNode = "")
         {
             while (rack.moving)
             {
-                Thread.Sleep(1000);
+                Thread.Sleep(1000); // Pause the program until the rack has arrived
             }
+
+            // Create a new task
             Task newTask = new Task();
             newTask.firstDestination = rack.currentNode;
-            newTask.finalDestination = World.grid.GetAvailableNode(rack.currentNode, typeNode);
+            newTask.finalDestination = World.grid.GetAvailableNode(rack.currentNode, typeNode); // Find a node where the rack can be placed
+            newTask.getRack = rack;
+
+            // Occupy the final destination so other robots won't go there
             newTask.firstDestination.occupied = false;
             newTask.finalDestination.occupied = true;
-            newTask.getRack = rack;
+            
             Tasks.Add(newTask);
         }
 
         /// <summary>
         /// Adds the object rack to the list Racks.
         /// </summary>
-        /// <param name="rack">Racks</param>
+        /// <param name="rack">Rack to be added</param>
         public void AddRack(Racks rack)
         {
             Racks.Add(rack);
@@ -151,35 +156,37 @@ namespace Models
         /// <summary>
         /// Removes the rack from the list Racks.
         /// </summary>
-        /// <param name="rack">Racks</param>
+        /// <param name="rack">Rack to be deleted</param>
         public void RemoveRack(Racks rack)
         {
             Racks.Remove(rack);
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Adds a new product
         /// </summary>
-        /// <param name="name"></param>
+        /// <param name="name">The name of the new product</param>
         public void AddProduct(string name)
         {
+            // Create the product
             Product product = new Product();
             product.AddStock(product.maxStock);
             SortList(Products);
-            int id = 0;
 
+            int id = 0;
             if (Products.Count > 0)
             {
-                id = Products.Last().id + 1;
+                id = Products.Last().id + 1; // Assign a new id
             }
+
+            // Add the product and order the product
             product.AddProduct(id, name);
             Products.Add(product);
             AddOrderOrShipment(Orders, product);
-            //Orders.Add(product);
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add the product to a given list
         /// </summary>
         /// <param name="list"></param>
         /// <param name="product"></param>
@@ -189,36 +196,20 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
-        /// </summary>
-        /// <param name="product"></param>
-        /// <returns></returns>
-        public Product RetrieveProduct(Product product)
-        {
-            foreach (Product p in Products)
-            {
-                if (p == product)
-                    return p;
-            }
-            Console.WriteLine("{0} couldn't be found", product.name);
-            return null;
-        }
-
-        /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add stock to a product
         /// </summary>
         /// <param name="product"></param>
         /// <param name="cargo"></param>
         public void AddStock(Product product, int cargo)
         {
-            if (RetrieveProduct(product) != null)
+            if (SearchRackByProduct(product.name) != null)
             {
                 product.AddStock(cargo);
             }
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Remove stock of a product
         /// </summary>
         /// <param name="product"></param>
         /// <param name="cargo"></param>
@@ -234,7 +225,7 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Check if products need te be ordered
         /// </summary>
         public void CheckStock()
         {
@@ -249,10 +240,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Search the rack that contains the given productname
         /// </summary>
         /// <param name="productName"></param>
-        /// <returns></returns>
+        /// <returns>The rack that was found</returns>
         private Racks SearchRackByProduct(string productName)
         {
             Product result = SearchProduct(productName);
@@ -275,10 +266,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Search product by productname
         /// </summary>
         /// <param name="productName"></param>
-        /// <returns></returns>
+        /// <returns>Returns the product that was found</returns>
         private Product SearchProduct(string productName)
         {
             foreach (Product p in Products)
@@ -288,14 +279,13 @@ namespace Models
                     return p;
                 }
             }
-
             return null;
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Sort a list by id
         /// </summary>
-        /// <param name="list"></param>
+        /// <param name="list">The list to be ordered</param>
         private void SortList(List<Product> list)
         {
             int count = 0;
@@ -319,7 +309,7 @@ namespace Models
         private int MinStock = 0;
 
         /// <summary>
-        /// Sets the given variables.
+        /// Adds a new product
         /// </summary>
         /// <param name="id">Id of the product</param>
         /// <param name="name">Name of the product</param>
@@ -338,7 +328,7 @@ namespace Models
         }
 
         /// <summary>
-        ///<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Change the product
         /// </summary>
         /// <param name="id"></param>
         /// <param name="name"></param>
@@ -359,12 +349,20 @@ namespace Models
                 MinStock = minStock;
         }
 
+        /// <summary>
+        /// Add stock to a product
+        /// </summary>
+        /// <param name="cargo">Amount of stock to be added</param>
         public void AddStock(int cargo)
         {
             if (Stock + cargo <= MaxStock)
                 Stock += cargo;
         }
 
+        /// <summary>
+        /// Remove stock from a product
+        /// </summary>
+        /// <param name="cargo">Amount of stock to be removed</param>
         public void RemoveStock(int cargo)
         {
             if (Stock - cargo >= 0)
@@ -372,10 +370,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Clone a product
         /// </summary>
-        /// <param name="product"></param>
-        /// <returns></returns>
+        /// <param name="product">Product to be cloned</param>
+        /// <returns>Returns the clone of a product</returns>
         public Product Clone(Product product)
         {
             Product newProduct = new Product();

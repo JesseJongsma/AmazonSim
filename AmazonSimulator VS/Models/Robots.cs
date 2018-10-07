@@ -8,10 +8,10 @@ namespace Models
 {
     public class Robots : Model3D, IUpdatable
     {
-        private List<Node> Visited = new List<Node>();
-        private List<Node> UnVisited = new List<Node>();
-        private List<Road> AllRoads = new List<Road>();
-        private List<Road> RoadStack = new List<Road>();
+        private List<Node> Visited = new List<Node>(); // This list registers all the nodes where the program has been
+        private List<Node> UnVisited = new List<Node>(); // This list contains all the nodes where the program hasn't been
+        private List<Road> AllRoads = new List<Road>(); // This list is used as a dictionary for all the roads
+        private List<Road> RoadStack = new List<Road>(); // This is the actual road that the robot is going to follow
         private List<Model3D> worldObjects = new List<Model3D>();
         public RobotMove robotMove = null;
         
@@ -119,9 +119,9 @@ namespace Models
         }
         
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Generate the actual path for the robot
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returns the actual path</returns>
         private List<Node> GeneratePath()
         {
             bool done = false;
@@ -143,12 +143,11 @@ namespace Models
 
             return path;
         }
-
-        //private Road path;
+        
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Generate RaodStack for the method GeneratePah()
         /// </summary>
-        /// <returns></returns>
+        /// <returns>returs a list of nodes to be followed by the robot from GeneratePath()</returns>
         private List<Node> GetShortestPath()
         {
             if (Visited.Last() != Destination)
@@ -181,7 +180,7 @@ namespace Models
         private double nodeX, nodeZ, countX, countZ;
         private List<Node> path;
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Move the robot over a generated path
         /// </summary>
         public void FollowPath()
         {
@@ -215,14 +214,14 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add a new node to RoadStack if the distance is shorter than the current road
         /// </summary>
-        /// <param name="newNode"></param>
+        /// <param name="newNode">node to be added</param>
         private void RoadStackAdd(Node newNode)
         {
             if (RoadStack.Count != 0)
             {
-                if (UpdateDistance(RoadStack, newNode))
+                if (UpdateDistance(newNode))
                 {
                     return;
                 }
@@ -232,15 +231,15 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add a new road
         /// </summary>
         /// <param name="node"></param>
-        /// <returns></returns>
+        /// <returns>returns the created road</returns>
         private Road AddRoad(Node node)
         {
             Road road = new Road(node);
 
-            if (Visited.Last() == node)
+            if (Visited.Last() == node) // If its the first node to be added
             {
                 road.PreviousNode = null;
                 road.Distance = Grid.CalculateDistance(node, Visited.Last());
@@ -256,12 +255,11 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Update a road if the new distance is shorter
         /// </summary>
-        /// <param name="list"></param>
         /// <param name="newNode"></param>
-        /// <returns></returns>
-        private bool UpdateDistance(List<Road> list, Node newNode)
+        /// <returns>returns a true if the distance was updated else false</returns>
+        private bool UpdateDistance(Node newNode)
         {
             bool updated = false;
             double distance = Grid.CalculateDistance(newNode, Visited.Last());
@@ -281,9 +279,9 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Sort list by distance
         /// </summary>
-        /// <param name="list"></param>
+        /// <param name="list">List to be sorted</param>
         private void SortList(List<Road> list)
         {
             bool change = false;
@@ -305,12 +303,12 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Count from start to end by step
         /// </summary>
         /// <param name="start"></param>
         /// <param name="end"></param>
         /// <param name="step"></param>
-        /// <returns></returns>
+        /// <returns>returns every count</returns>
         private double countInRange(double start, double end, double step)
         {
             start = Math.Round(start, 1);
@@ -328,10 +326,10 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Find a road by node
         /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
+        /// <param name="node">search node</param>
+        /// <returns>The road that was found</returns>
         private Road GetRoadByNode(Node node)
         {
             foreach (Road road in AllRoads)
@@ -345,7 +343,7 @@ namespace Models
         }
 
         /// <summary>
-        /// Reset methode, resets everyting to null; 
+        /// Reset methode, resets everyting to the default values
         /// </summary>
         private void Reset()
         {
@@ -359,9 +357,6 @@ namespace Models
         }
     }
 
-    /// <summary>
-    /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
-    /// </summary>
     class Road
     {
         public Node Node;
@@ -373,11 +368,19 @@ namespace Models
             Node = node;
         }
 
+        /// <summary>
+        /// Update distance to the new road
+        /// </summary>
+        /// <param name="distance"></param>
         public void AddDistance(double distance)
         {
             Distance = distance;
         }
 
+        /// <summary>
+        /// Update the previous road
+        /// </summary>
+        /// <param name="road"></param>
         public void AddPreviousRoad(Road road)
         {
             PreviousNode = road;

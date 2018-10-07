@@ -26,9 +26,6 @@ namespace Models
             Thread inventoryPromptThread = new Thread(() => InventoryPrompt(Inventory));
             inventoryPromptThread.Start();
 
-            Thread inventoryCheckStockThread = new Thread(() => InventoryCheck(Inventory));
-            //inventoryCheckStockThread.Start();
-
             for (int i = 0; i < 3; i++)
             {
                 CreateRobot(grid.GetNodes[i].x, 0.05, grid.GetNodes[i].z);
@@ -37,11 +34,15 @@ namespace Models
             CreateModel3D("earth", 500, 10, 500);
         }
 
+        /// <summary>
+        /// Prompts the user
+        /// </summary>
+        /// <param name="inv">The Inventory instace</param>
         private void InventoryPrompt(Inventory inv)
         {
             while (true)
             {
-                inv.PromptUser(this);
+                inv.PromptUser();
             }
         }
 
@@ -59,15 +60,13 @@ namespace Models
             return door;
         }
 
-        private void InventoryCheck(Inventory inv)
-        {
-            while (true)
-            {
-                Thread.Sleep(5000);
-                inv.CheckStock();
-            }
-        }
-
+        /// <summary>
+        /// Create a new robot
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="y">y-position</param>
+        /// <param name="z">z-position</param>
+        /// <returns>Returns the robot that was created</returns>
         private Robots CreateRobot(double x, double y, double z)
         {
             Robots robot = new Robots(this, "robot", x, y, z, 0, 0, 0);
@@ -75,6 +74,13 @@ namespace Models
             return robot;
         }
 
+        /// <summary>
+        /// Create a new spaceship
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="y">y-position</param>
+        /// <param name="z">z-position</param>
+        /// <returns>Returns the spaceship that was created</returns>
         private Spaceships CreateSpaceShip(double x, double y, double z)
         {
             Spaceships ship = new Spaceships(this, "spaceship", x, y, z, 0, 0, 0);
@@ -83,6 +89,13 @@ namespace Models
             return ship;
         }
 
+        /// <summary>
+        /// Create a new Model3D
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="y">y-position</param>
+        /// <param name="z">z-position</param>
+        /// <returns>Returns the model that was created</returns>
         private Model3D CreateModel3D(string type, double x, double y, double z)
         {
             Model3D model = new Model3D(this, type, x, y, z, 0, 0, 0);
@@ -90,6 +103,13 @@ namespace Models
             return model;
         }
 
+        /// <summary>
+        /// Create a new Rack
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="y">y-position</param>
+        /// <param name="z">z-position</param>
+        /// <returns>Returns the rack that was created</returns>
         private Racks CreateRack(Node node)
         {
             Racks rack = new Racks(this, "rack", node.x, 2, node.z, -0.05, -1.42, 0);
@@ -98,44 +118,34 @@ namespace Models
             return rack;
         }
 
+        /// <summary>
+        /// Creates a new light
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="y">y-position</param>
+        /// <param name="z">z-position</param>
+        /// <param name="r_x">x-rotation</param>
+        /// <param name="r_y">y-rotation</param>
+        /// <param name="r_z">z-rotation</param>
         private void drawLight(double x, double y, double z, double r_x, double r_y, double r_z)
         {
             Model3D light = new Model3D(this, "light", x, y, z, r_x, r_y, r_z);
             worldObjects.Add(light);
         }
 
+
+        /// <summary>
+        /// Creates a new road
+        /// </summary>
+        /// <param name="x">x-position</param>
+        /// <param name="z">z-position</param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
         private void drawRoad(double x, double z, double width, double height)
         {
             Model3D road = new Model3D(this, "road", x, 0, z, 0, 0, 0);
             road.Transform(width, height, 0);
             worldObjects.Add(road);
-        }
-
-        public IDisposable Subscribe(IObserver<Command> observer)
-        {
-            if (!observers.Contains(observer))
-            {
-                observers.Add(observer);
-
-                SendCreationCommandsToObserver(observer);
-            }
-            return new Unsubscriber<Command>(observers, observer);
-        }
-
-        private void SendCommandToObservers(Command c)
-        {
-            for (int i = 0; i < this.observers.Count; i++)
-            {
-                this.observers[i].OnNext(c);
-            }
-        }
-
-        private void SendCreationCommandsToObserver(IObserver<Command> obs)
-        {
-            foreach (Model3D m3d in worldObjects)
-            {
-                obs.OnNext(new UpdateModel3DCommand(m3d));
-            }
         }
 
         public bool Update(int tick)
@@ -159,26 +169,29 @@ namespace Models
                         else if (u is Spaceships)
                         {
                             Spaceships spaceship = (Spaceships)u;
-                            //if (spaceship.z == 0)
-                            //    spaceship.reset();
                             spaceship.needsUpdate = true;
+
+                            // Check if the spaceship is above the building and shipments is not empty
                             if (Inventory.shipments.Count() > 0 && (spaceship.z <= 8 && spaceship.z >= -8))
                             {
-                                //spaceship.moveSpaceship();
                                 ReceiveShipment(spaceship);
                             }
 
+                            // Check if the warehouse needs to be restocked after the spaceship passed the building
                             if (spaceship.z < -8)
                                 Inventory.CheckStock();
 
+                            // Check if the warehouse has orders
                             if (Inventory.orders.Count() > 0)
                             {
                                 checkCoordinateShip = ReceiveCargo(spaceship);
                             }
 
+                            // Move the spaceship if the spaceship has any type of orders or has already begun moving
                             if ((Inventory.orders.Count() > 0 || Inventory.shipments.Count() > 0) || (spaceship.z > -140 ^ spaceship.z == 125))
                                 spaceship.moveSpaceship();
 
+                            // If the spaceship has almost reached his destination, you receive your delivery
                             if (spaceship.z == -139 && spaceship.cargo.Count() > 0)
                             {
                                 spaceship.cargo.ForEach(x =>
@@ -186,7 +199,6 @@ namespace Models
 
                                 spaceship.cargo.Clear();
                             }
-                            //if( || (spaceship.z > -140 ^ spaceship.z == 125) )
                         }
                         else if (u is Racks)
                         {
@@ -249,10 +261,10 @@ namespace Models
         /// <summary>
         /// Checks if the spaceship is in the right coordinates by calling the methode spaceship.checkCooridinates which returns a true or false
         /// if true than it counts count up to 10 (This because otherwise the z coordinates whill be different) if false nothing will be done. If 
-        /// count is 10 or bigger than it will create racks if the node is not occupied. >>>>>>>>>>>>>>>>>JESSE
+        /// count is 10 or bigger than it will create racks if the node is not occupied.
         /// </summary>
         /// <param name="spaceship">Receives the object spaceship</param>
-        /// <returns>true or false</returns>
+        /// <returns>boolean</returns>
         private bool ReceiveCargo(Spaceships spaceship)
         {
             if (spaceship.checkCoordinates() && count < 11)
@@ -291,19 +303,20 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Spaceship receives the shipment
         /// </summary>
         /// <param name="spaceship"></param>
         private void ReceiveShipment(Spaceships spaceship)
         {
             Task task = null;
-            for (int i = 0; i <= Inventory.shipments.Count() - 1; i++)
+
+            for (int i = 0; i <= Inventory.shipments.Count() - 1; i++) // Each shipment
             {
-                for (int j = 0; j <= Inventory.racks.Count() - 1; j++)
+                for (int j = 0; j <= Inventory.racks.Count() - 1; j++) // Each rack
                 {
                     if (Inventory.racks[j].currentNode.type == "cargoNode" && !Inventory.racks[j].moving && !Inventory.orders.Contains(Inventory.shipments[i]))
                     {
-                        for (int k = 0; k <= Inventory.racks[j].contains.Count() - 1; k++)
+                        for (int k = 0; k <= Inventory.racks[j].contains.Count() - 1; k++) // Each product in each rack
                         {
                             if (Inventory.racks[j].contains[k].id == Inventory.shipments[i].id)
                             {
@@ -318,6 +331,8 @@ namespace Models
                                     return;
                             }
                         }
+
+                        // Delete the rack
                         if (Inventory.racks[j].contains.Count() == 0)
                         {
                             Inventory.racks[j].currentNode.occupied = false;
@@ -329,8 +344,8 @@ namespace Models
         }
 
         /// <summary>
-        /// This method makes roads based on what is given. It will also draw light, if there is one more road than there will also be 
-        /// one more light etc. <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// This method makes roads based on a given amount. It will also draw light, if there is one more road then there will also be 
+        /// one more light etc.
         /// </summary>
         /// <param name="amountRoads">How many roads the methode as to draw</param>
         private void DrawRoads(double amountRoads)
@@ -338,6 +353,7 @@ namespace Models
             double x = 5, z = 20, width = 82, height = 2; //Starting point and standard values
             string type = "";
 
+            // Draw the roads over the x-axis
             drawRoad(x, z, width, height);
             drawRoad(x, -z, width, height);
 
@@ -346,6 +362,7 @@ namespace Models
             double startPosition = -35;
             double segment = length * percent;
 
+            // Draw the roads in the middle
             for (int i = 0; i <= amountRoads; i++)
             {
                 drawRoad(startPosition + segment * i, 0, height, width / 2);
@@ -370,15 +387,17 @@ namespace Models
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Add the synapses
         /// </summary>
         public void addConnections()
         {
             for (int i = grid.GetNodes.Count - 1; i >= 0; i--)
             {
+                // Skip the nodes at the ends
                 if (i % 11 != 0)
-                    grid.AddConnection(grid.GetNodes[i], grid.GetNodes[i - 1]);
+                    grid.AddConnection(grid.GetNodes[i], grid.GetNodes[i - 1]); // Create synapses from back to start
 
+                // Connect the ends to eachother
                 if (grid.GetNodes[i].z == 20 || grid.GetNodes[i].z == -20)
                 {
                     if (i >= 11)
@@ -393,17 +412,16 @@ namespace Models
                 }
             }
 
+            // Create the synapses from start to back
             for (int i = 1; i < grid.GetNodes.Count; i++)
             {
                 if (i % 11 != 0 || i == 0)
                     grid.AddConnection(grid.GetNodes[i - 1], grid.GetNodes[i]);
             }
-
-
         }
 
         /// <summary>
-        /// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// Draw nodes and synapses on screen
         /// </summary>
         private void drawNodes()
         {
@@ -418,6 +436,33 @@ namespace Models
                 Model3D synapse = CreateModel3D("synapse", connectedNodes.Source.x, 0, connectedNodes.Source.z);
                 synapse.Transform(connectedNodes.Destination.x, 0, connectedNodes.Destination.z);
                 worldObjects.Add(synapse);
+            }
+        }
+
+        public IDisposable Subscribe(IObserver<Command> observer)
+        {
+            if (!observers.Contains(observer))
+            {
+                observers.Add(observer);
+
+                SendCreationCommandsToObserver(observer);
+            }
+            return new Unsubscriber<Command>(observers, observer);
+        }
+
+        private void SendCommandToObservers(Command c)
+        {
+            for (int i = 0; i < this.observers.Count; i++)
+            {
+                this.observers[i].OnNext(c);
+            }
+        }
+
+        private void SendCreationCommandsToObserver(IObserver<Command> obs)
+        {
+            foreach (Model3D m3d in worldObjects)
+            {
+                obs.OnNext(new UpdateModel3DCommand(m3d));
             }
         }
     }
