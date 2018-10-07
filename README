@@ -1,1 +1,3 @@
+We have created an Amazon simulator. You can order products by typing {product}, there will be 10 of the same product ordered. This product comes in a Rack. The Rack is brought by a spaceship to the storage and the robots ensure the rack of a free place in the storage.
 
+If you would like to order products as a customer you can do so by typing {product, ammount}. This is only possible when you have added the product and you still have the ammount of products you want to order. For example, if you order 3 apples than there will still be 7 apples in the rack. The 3 apples are removed from the rack and are brought to your home by the spaceship. The other 7 apples in the Rack are brought back in the storage. 
