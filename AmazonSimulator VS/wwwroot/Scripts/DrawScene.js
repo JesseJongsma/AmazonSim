@@ -4,19 +4,16 @@
         this.scene = scene;
     }
 
-    drawSphere(x, y, z, posx, posy, posz, pathPicture = null, color = null) {
+    //Draw sphere.
+    drawSphere(x, y, z, posx, posy, posz, pathPicture = null) {
         var sphereGeometry = new THREE.SphereGeometry(x, y, z);
-        if (pathPicture != null && color == null)
-            var sphereMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load(pathPicture), side: THREE.DoubleSide });
-        else if (pathPicture == null && color != null)
-            var sphereMaterial = new THREE.MeshLambertMaterial({ color: color });
-        else
-            console.log("Invalid input");
+        var sphereMaterial = new THREE.MeshLambertMaterial({ map: new THREE.TextureLoader().load(pathPicture), side: THREE.DoubleSide });
         var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         sphere.position.set(posx, posy, posz);
         return sphere;
     }
 
+    //Draw plane.
     drawPlane(width, height, x, y, z, setColor) {
         var geometry = new THREE.PlaneGeometry(width, height, 32);
         var material = new THREE.MeshLambertMaterial({ color: setColor, side: THREE.DoubleSide });
@@ -26,6 +23,7 @@
         return plane;
     }
 
+    //Draw robot.
     drawRobot(x, y, z) {
         var geometry = new THREE.BoxGeometry(x, y, z);
         var cubeMaterials = [
@@ -39,23 +37,18 @@
         var material = new THREE.MeshFaceMaterial(cubeMaterials);
         var robot = new THREE.Mesh(geometry, material);
         robot.position.y = 0.15;
-        var group = new THREE.Group();
-        group.add(robot);
-        return group;
+        return robot;
     }
 
+    //Draw pointlight.
     drawLight(x, y, z, intensity, distance, setColor, light) {
-        switch (light) {
-            case "pointLight":
-                var light = new THREE.PointLight(setColor, intensity, distance);
-                this.drawLensflare(light)
-                light.position.set(x, y, z);
-                return light;
-                break;
-            
-        }
+        var light = new THREE.PointLight(setColor, intensity, distance);
+        this.drawLensflare(light)
+        light.position.set(x, y, z);
+        return light;
     }
 
+    //Draw lensflare.
     drawLensflare(light) {
         if (light.distance == 0) {
             var textureLoader = new THREE.TextureLoader();
@@ -66,6 +59,7 @@
         }
     }
 
+    //Draw box.
     drawWall(witdh, height, depth, x, y, z, giveColor) {
         var geometry = new THREE.BoxGeometry(witdh, height, depth);
         var material = new THREE.MeshLambertMaterial({ color: giveColor });
@@ -74,6 +68,7 @@
         return storage;
     }
 
+    //Draw object.
     drawOBJModel(modelPath, modelName, texturePath, textureName, onload,) {
         new THREE.MTLLoader()
             .setPath(texturePath)
@@ -89,6 +84,7 @@
             });
     }
 
+    //Draw cone.
     drawCone(x, y, z, radius, setColor) {
         var geometry = new THREE.ConeGeometry(radius, y, 32);
         var material = new THREE.MeshBasicMaterial({ color: setColor, transparent: true, opacity: 0.2 });
@@ -99,6 +95,7 @@
         return cone; 
     }
 
+    //Draw node or synape.
     drawNodeOrSyn(x, z, width, depth, setColor, setBool) {
         var material = new THREE.LineBasicMaterial({ color: setColor });
         var geometry = new THREE.Geometry();
@@ -110,7 +107,7 @@
             );
         }
         else if (setBool == true) {
-            //draw syn
+            //draw synape
             geometry.vertices.push(
                 new THREE.Vector3(x, 10, z),
                 new THREE.Vector3(width, 15, depth),

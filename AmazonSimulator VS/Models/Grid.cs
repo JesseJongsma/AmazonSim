@@ -10,6 +10,13 @@ namespace Models
         private List<Node> NodesList = new List<Node>();
         private List<ConnectedNodes> ConnectedNodesList = new List<ConnectedNodes>();
 
+        /// <summary>
+        /// Sets the x, z and the type of the node and adds this to the list NodesList.
+        /// </summary>
+        /// <param name="x">Coordinate x</param>
+        /// <param name="z">COordinate z</param>
+        /// <param name="type">The type of the Node</param>
+        /// <returns>Node</returns>
         public Node AddNode(double x, double z, string type)
         {
             Node Node = new Node();
@@ -22,6 +29,11 @@ namespace Models
             return Node;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="source"></param>
+        /// <param name="destination"></param>
         public void AddConnection(Node source, Node destination)
         {
             ConnectedNodes newConnection = new ConnectedNodes();
@@ -32,6 +44,11 @@ namespace Models
             ConnectedNodesList.Add(newConnection);
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="searchNode"></param>
+        /// <returns></returns>
         public List<Node> GetDestinationsBySource(Node searchNode)
         {
             List<Node> destinations = new List<Node>();
@@ -43,6 +60,12 @@ namespace Models
             return destinations;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="origin"></param>
+        /// <param name="destination"></param>
+        /// <returns></returns>
         public double CalculateDistance(Node origin, Node destination)
         {
             double differenceX = origin.x - destination.x;
@@ -52,6 +75,9 @@ namespace Models
             return distance;
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
         public List<Node> GetNodes
         {
             get
@@ -60,6 +86,9 @@ namespace Models
             }
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
         public List<ConnectedNodes> GetConnectedNodes
         {
             get
@@ -69,6 +98,12 @@ namespace Models
         }
 
         private Node getNode;
+        /// <summary>
+        /// Checks where the x and z coordinate is on the grid. 
+        /// </summary>
+        /// <param name="x">Coordinate x of a object</param>
+        /// <param name="z">Coordinate z of a object</param>
+        /// <returns></returns>
         public Node GetNodeByCoordinates(double x, double z)
         {
             foreach (Node node in NodesList)
@@ -79,6 +114,11 @@ namespace Models
             return getNode; 
         }
 
+        /// <summary>
+        /// <<<<<<<<<<<<<<<<<<<<<<<<JESSE
+        /// </summary>
+        /// <param name="currentNode"></param>
+        /// <returns></returns>
         public Node GetAvailableNode(Node currentNode, string typeNode = "")
         {
             if(typeNode == "")
@@ -94,6 +134,9 @@ namespace Models
         }
     }
 
+    /// <summary>
+    /// Object Node which have the variables x, y, type and occupied.
+    /// </summary>
     public class Node
     {
         public double x;
@@ -102,6 +145,9 @@ namespace Models
         public bool occupied = false;
     }
 
+    /// <summary>
+    /// This object has object Node Source and object Node Destination.
+    /// </summary>
     public class ConnectedNodes
     {
         public Node Source { get; set; }
